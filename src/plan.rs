@@ -20,6 +20,8 @@
 use serde::Deserialize;
 use serde_json::Value;
 
+use crate::action::Action;
+
 /// A whole plan: the top-level object of `terraform show -json`.
 #[derive(Debug, Deserialize)]
 pub struct Plan {
@@ -86,9 +88,10 @@ pub struct ResourceChange {
 /// What will happen to a resource, and its values before and after.
 #[derive(Debug, Deserialize)]
 pub struct Change {
-    /// Raw action list, e.g. `["create"]` or `["delete", "create"]` for a replace.
-    /// Turned into an enum in issue #5.
-    pub actions: Vec<String>,
+    /// What will happen, parsed from the JSON `actions` list,
+    /// e.g. `["delete", "create"]`. Singular here because it is one `Action`.
+    #[serde(rename = "actions")]
+    pub action: Action,
 
     /// Attribute values before the change. `Null` for creates.
     #[serde(default)]
@@ -181,7 +184,7 @@ mod tests {
         );
 
         for rc in &plan.resource_changes {
-            assert_eq!(rc.change.actions, ["create"]);
+            assert_eq!(rc.change.action, Action::Create);
             assert_eq!(rc.mode, "managed");
             assert!(rc.change.before.is_null());
             assert!(!rc.change.is_importing());
@@ -211,7 +214,7 @@ mod tests {
             }]
         }"#;
         let plan = Plan::from_json(json).unwrap();
-        assert_eq!(plan.resource_changes[0].change.actions, ["update"]);
+        assert_eq!(plan.resource_changes[0].change.action, Action::Update);
     }
 
     #[test]
@@ -239,6 +242,12 @@ mod tests {
         assert_eq!(rc.change.replace_paths.len(), 2);
         assert_eq!(rc.change.replace_paths[1][1], 0);
         assert!(rc.change.is_importing());
+        assert_eq!(
+            rc.change.action,
+            Action::Replace {
+                create_first: false
+            }
+        );
     }
 
     #[test]

@@ -4,4 +4,5 @@
 //! around it. This is a common layout for Rust CLIs: tests in `tests/` can
 //! only import from a library, not from a binary.
 
+pub mod action;
 pub mod plan;
