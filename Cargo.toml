@@ -1,0 +1,12 @@
+[package]
+name = "planrisk"
+version = "0.1.0"
+edition = "2024"
+description = "Reads a Terraform plan JSON and flags risky changes: destroys, replacements, widened access, blast radius."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Andrew-Hinson/planrisk"
+readme = "README.md"
+keywords = ["terraform", "plan", "risk", "ci", "infrastructure"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
