@@ -1,6 +1,9 @@
 use std::process::ExitCode;
 
 use clap::Parser;
+use planrisk::report::Report;
+use planrisk::rules::all_rules;
+use planrisk::summary::render_text;
 
 /// Reads a Terraform plan and flags risky changes.
 #[derive(Parser)]
@@ -44,6 +47,7 @@ fn main() -> ExitCode {
 
 fn run(cli: &Cli) -> anyhow::Result<()> {
     let plan = planrisk::input::read_plan(&cli.plan)?;
-    print!("{}", planrisk::summary::render_text(&plan));
+    let report = Report::build(plan, &all_rules());
+    print!("{}", render_text(&report));
     Ok(())
 }
