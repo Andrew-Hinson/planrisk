@@ -104,13 +104,15 @@ pub fn render_text(report: &Report) -> String {
     // whichever sections are present.
 
     // Findings come before the resource list: they are what a reviewer
-    // needs first. With no findings, nothing is printed here yet; a
-    // "no risky changes" line would be a false all-clear until rules exist.
+    // needs first. "No findings" is skipped for an empty plan, where it
+    // would only repeat "No changes".
     if !report.findings.is_empty() {
         let _ = writeln!(out, "\nFindings:");
         for finding in &report.findings {
             let _ = writeln!(out, "  {}", describe_finding(finding));
         }
+    } else if !lines.is_empty() {
+        let _ = writeln!(out, "\nNo findings.");
     }
 
     if !lines.is_empty() {
@@ -245,6 +247,8 @@ mod tests {
 Terraform 1.16.1, plan format 1.2
 3 to create, 0 to update, 0 to replace, 0 to delete
 
+No findings.
+
 Changes:
   create   aws_s3_bucket.assets
   create   aws_security_group.web
@@ -292,6 +296,8 @@ Changes:
             text,
             r#"Terraform 1.16.1, plan format 1.2
 1 to create, 3 to update, 3 to replace, 2 to delete, 1 to forget, 1 to read, 2 to import, 2 to move, 1 with an unknown action
+
+No findings.
 
 Changes:
   create   a.create
