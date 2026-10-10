@@ -44,11 +44,6 @@ fn main() -> ExitCode {
 
 fn run(cli: &Cli) -> anyhow::Result<()> {
     let plan = planrisk::input::read_plan(&cli.plan)?;
-    // Placeholder output until the summary lands (issue #8).
-    println!(
-        "{} resource changes (format {})",
-        plan.resource_changes.len(),
-        plan.format_version
-    );
+    print!("{}", planrisk::summary::render_text(&plan));
     Ok(())
 }
