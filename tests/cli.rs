@@ -11,7 +11,7 @@ fn reads_a_plan_file() {
         .arg(CREATE_ONLY)
         .assert()
         .success()
-        .stdout(contains("3 resource changes"));
+        .stdout(contains("3 to create"));
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn reads_a_plan_from_stdin() {
         .write_stdin(json)
         .assert()
         .success()
-        .stdout(contains("3 resource changes"));
+        .stdout(contains("3 to create"));
 }
 
 #[test]
