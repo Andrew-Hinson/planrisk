@@ -1,14 +1,15 @@
-//! The plain-text summary: counts per action, then one line per change.
+//! The plain-text summary: counts per action, findings, then one line per change.
 //!
-//! This is planrisk's first output. It only describes what Terraform will
-//! do; judging risk comes with the rules (M2). It never prints attribute
-//! values, so values that are only known after apply (`after_unknown`) can't
-//! be shown as removed, and sensitive values can't leak.
+//! It never prints attribute values, so values that are only known after
+//! apply (`after_unknown`) can't be shown as removed, and sensitive values
+//! can't leak.
 
 use std::fmt::Write;
 
 use crate::action::Action;
-use crate::plan::{Plan, ResourceChange};
+use crate::finding::Finding;
+use crate::plan::ResourceChange;
+use crate::report::Report;
 
 /// How many resources each kind of change affects.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -76,8 +77,9 @@ impl Counts {
     }
 }
 
-/// Renders the whole summary for a plan.
-pub fn render_text(plan: &Plan) -> String {
+/// Renders the whole summary for a checked plan.
+pub fn render_text(report: &Report) -> String {
+    let plan = &report.plan;
     // `write!` to a String can't fail, so the results are safely ignored
     // with `let _ =` throughout.
     let mut out = String::new();
@@ -95,12 +97,24 @@ pub fn render_text(plan: &Plan) -> String {
     if lines.is_empty() {
         let _ = writeln!(out, "No changes.");
     } else {
-        let _ = writeln!(
-            out,
-            "{}",
-            Counts::from_changes(&plan.resource_changes).describe()
-        );
-        let _ = writeln!(out);
+        let _ = writeln!(out, "{}", report.counts.describe());
+    }
+
+    // Each section below starts with a blank line, so spacing stays right
+    // whichever sections are present.
+
+    // Findings come before the resource list: they are what a reviewer
+    // needs first. With no findings, nothing is printed here yet; a
+    // "no risky changes" line would be a false all-clear until rules exist.
+    if !report.findings.is_empty() {
+        let _ = writeln!(out, "\nFindings:");
+        for finding in &report.findings {
+            let _ = writeln!(out, "  {}", describe_finding(finding));
+        }
+    }
+
+    if !lines.is_empty() {
+        let _ = writeln!(out, "\nChanges:");
         for line in &lines {
             let _ = writeln!(out, "  {line}");
         }
@@ -129,6 +143,21 @@ pub fn render_text(plan: &Plan) -> String {
 /// One line for a resource change, e.g.
 /// `replace  aws_db_instance.main (create before destroy)`.
 /// Returns `None` for no-ops that aren't moves or imports: nothing happens to them.
+/// One line for a finding, e.g.
+/// `critical  aws_db_instance.main: will be replaced (engine_version changed) [stateful-replace]`.
+fn describe_finding(finding: &Finding) -> String {
+    let mut line = format!("{:<8}  ", finding.severity);
+    if let Some(address) = &finding.address {
+        let _ = write!(line, "{address}: ");
+    }
+    line.push_str(&finding.message);
+    if let Some(reason) = &finding.reason {
+        let _ = write!(line, " ({reason})");
+    }
+    let _ = write!(line, " [{}]", finding.rule_id);
+    line
+}
+
 fn describe(rc: &ResourceChange) -> Option<String> {
     let mut notes = Vec::new();
 
@@ -189,25 +218,34 @@ fn describe(rc: &ResourceChange) -> Option<String> {
 mod tests {
     use super::*;
 
+    use crate::finding::Severity;
+    use crate::plan::Plan;
+
     fn plan(json: &str) -> Plan {
         Plan::from_json(json).unwrap()
     }
 
+    /// A report with no rules run, so it has no findings.
+    fn report(json: &str) -> Report {
+        Report::build(plan(json), &[])
+    }
+
     #[test]
     fn empty_plan_says_no_changes() {
-        let text = render_text(&plan(include_str!("../tests/fixtures/empty.json")));
+        let text = render_text(&report(include_str!("../tests/fixtures/empty.json")));
         assert_eq!(text, "Terraform 1.16.1, plan format 1.2\nNo changes.\n");
     }
 
     #[test]
     fn create_only_plan() {
-        let text = render_text(&plan(include_str!("../tests/fixtures/create-only.json")));
+        let text = render_text(&report(include_str!("../tests/fixtures/create-only.json")));
         assert_eq!(
             text,
             "\
 Terraform 1.16.1, plan format 1.2
 3 to create, 0 to update, 0 to replace, 0 to delete
 
+Changes:
   create   aws_s3_bucket.assets
   create   aws_security_group.web
   create   module.queue.aws_sqs_queue.this
@@ -249,12 +287,13 @@ Terraform 1.16.1, plan format 1.2
 
     #[test]
     fn every_kind_of_change() {
-        let text = render_text(&plan(EVERYTHING));
+        let text = render_text(&report(EVERYTHING));
         assert_eq!(
             text,
             r#"Terraform 1.16.1, plan format 1.2
 1 to create, 3 to update, 3 to replace, 2 to delete, 1 to forget, 1 to read, 2 to import, 2 to move, 1 with an unknown action
 
+Changes:
   create   a.create
   update   a.update
   replace  a.replace
@@ -299,10 +338,48 @@ Deferred to a later plan (information only):
 
     #[test]
     fn plain_no_ops_are_hidden() {
-        let text = render_text(&plan(
+        let text = render_text(&report(
             r#"{"format_version": "1.2", "planned_values": {},
                 "resource_changes": [{"address": "a.same", "change": {"actions": ["no-op"]}}]}"#,
         ));
         assert!(text.ends_with("No changes.\n"), "{text}");
+    }
+
+    #[test]
+    fn findings_come_before_changes() {
+        let mut report = report(include_str!("../tests/fixtures/create-only.json"));
+        report.findings = vec![
+            Finding {
+                rule_id: "stateful-replace",
+                severity: Severity::Critical,
+                address: Some("aws_db_instance.main".to_string()),
+                message: "database will be replaced".to_string(),
+                reason: Some("engine_version changed".to_string()),
+            },
+            Finding {
+                rule_id: "blast-radius",
+                severity: Severity::Medium,
+                address: None,
+                message: "40 resources change".to_string(),
+                reason: None,
+            },
+        ];
+        let text = render_text(&report);
+        assert_eq!(
+            text,
+            "\
+Terraform 1.16.1, plan format 1.2
+3 to create, 0 to update, 0 to replace, 0 to delete
+
+Findings:
+  critical  aws_db_instance.main: database will be replaced (engine_version changed) [stateful-replace]
+  medium    40 resources change [blast-radius]
+
+Changes:
+  create   aws_s3_bucket.assets
+  create   aws_security_group.web
+  create   module.queue.aws_sqs_queue.this
+"
+        );
     }
 }

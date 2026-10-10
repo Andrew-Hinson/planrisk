@@ -5,6 +5,9 @@
 //! only import from a library, not from a binary.
 
 pub mod action;
+pub mod finding;
 pub mod input;
 pub mod plan;
+pub mod report;
+pub mod rules;
 pub mod summary;
