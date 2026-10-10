@@ -43,6 +43,7 @@ pub fn parse_plan(text: &str, name: &str) -> Result<Plan> {
     })?;
 
     check_is_plan(&value, name)?;
+    check_format_version(&value, name)?;
 
     serde_json::from_value(value)
         .with_context(|| format!("`{name}` looks like a plan but could not be read"))
@@ -76,6 +77,48 @@ fn check_is_plan(value: &Value, name: &str) -> Result<()> {
     bail!(
         "`{name}` is JSON but not a Terraform plan (no `planned_values` key).\n\n{HOW_TO_MAKE_A_PLAN}"
     )
+}
+
+/// The only `format_version` major version planrisk understands.
+const SUPPORTED_MAJOR: u32 = 1;
+
+/// Rejects plans in a format version planrisk can't read.
+///
+/// The format docs promise that minor versions (`1.1`, `1.2`, ...) only add
+/// things, and tell consumers to "reject any input which reports an
+/// unsupported major version". So any `1.x` is accepted and anything else is
+/// an error, rather than a guess that might misreport risk.
+fn check_format_version(value: &Value, name: &str) -> Result<()> {
+    let Some(found) = value.get("format_version") else {
+        bail!(
+            "`{name}` has no `format_version`, so it can't be read as a plan.\n\n{HOW_TO_MAKE_A_PLAN}"
+        );
+    };
+    let Some(version) = found.as_str() else {
+        bail!("`{name}` has a `format_version` that is not a string: {found}");
+    };
+
+    // Expect "MAJOR.MINOR", e.g. "1.2".
+    let major = version
+        .split_once('.')
+        .filter(|(major, minor)| is_number(major) && is_number(minor))
+        .and_then(|(major, _)| major.parse::<u32>().ok());
+    let Some(major) = major else {
+        bail!("`{name}` has a malformed `format_version` \"{version}\" (expected e.g. \"1.2\")");
+    };
+
+    if major != SUPPORTED_MAJOR {
+        bail!(
+            "`{name}` uses plan format version {version}, but planrisk only supports \
+             {SUPPORTED_MAJOR}.x. A newer planrisk release may support it."
+        );
+    }
+    Ok(())
+}
+
+/// True for a non-empty string of ASCII digits.
+fn is_number(s: &str) -> bool {
+    !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit())
 }
 
 #[cfg(test)]
@@ -131,12 +174,61 @@ mod tests {
 
     #[test]
     fn plan_shaped_but_broken_is_reported() {
-        // Has planned_values but no format_version, which Plan requires.
-        let msg = error_text(r#"{"planned_values": {}}"#);
+        // Passes the shape and version checks, but resource_changes must be a list.
+        let msg = error_text(
+            r#"{"format_version": "1.2", "planned_values": {}, "resource_changes": "oops"}"#,
+        );
         assert!(
             msg.contains("looks like a plan but could not be read"),
             "{msg}"
         );
-        assert!(msg.contains("format_version"), "{msg}");
+    }
+
+    /// A minimal plan whose `format_version` is the given raw JSON value.
+    fn plan_with_version(version_json: &str) -> String {
+        format!(r#"{{"format_version": {version_json}, "planned_values": {{}}}}"#)
+    }
+
+    #[test]
+    fn any_1_x_format_version_is_accepted() {
+        for version in ["1.0", "1.2", "1.99"] {
+            parse_plan(&plan_with_version(&format!("\"{version}\"")), "plan.json")
+                .unwrap_or_else(|e| panic!("{version} rejected: {e:#}"));
+        }
+    }
+
+    #[test]
+    fn other_major_versions_are_rejected_by_name() {
+        for version in ["0.2", "2.0", "10.1"] {
+            let msg = error_text(&plan_with_version(&format!("\"{version}\"")));
+            assert!(
+                msg.contains(&format!("plan format version {version}")),
+                "{msg}"
+            );
+            assert!(msg.contains("only supports 1.x"), "{msg}");
+        }
+    }
+
+    #[test]
+    fn missing_format_version_is_rejected() {
+        let msg = error_text(r#"{"planned_values": {}}"#);
+        assert!(msg.contains("has no `format_version`"), "{msg}");
+    }
+
+    #[test]
+    fn malformed_format_version_is_rejected() {
+        for version in ["1", "one.two", "1.", ".2", "1.2.3", "-1.0", ""] {
+            let msg = error_text(&plan_with_version(&format!("\"{version}\"")));
+            assert!(
+                msg.contains("malformed `format_version`"),
+                "{version:?}: {msg}"
+            );
+        }
+    }
+
+    #[test]
+    fn non_string_format_version_is_rejected() {
+        let msg = error_text(&plan_with_version("1.2"));
+        assert!(msg.contains("not a string"), "{msg}");
     }
 }

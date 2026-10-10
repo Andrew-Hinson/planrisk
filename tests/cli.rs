@@ -72,3 +72,13 @@ fn help_exits_0() {
         .success()
         .stdout(contains("PLAN_JSON"));
 }
+
+#[test]
+fn unsupported_format_version_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .arg("-")
+        .write_stdin(r#"{"format_version": "2.0", "planned_values": {}}"#)
+        .assert()
+        .code(1)
+        .stderr(contains("plan format version 2.0"));
+}

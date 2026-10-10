@@ -25,7 +25,8 @@ use crate::action::Action;
 /// A whole plan: the top-level object of `terraform show -json`.
 #[derive(Debug, Deserialize)]
 pub struct Plan {
-    /// Version of the JSON format, e.g. `"1.2"`. Checked separately (issue #7).
+    /// Version of the JSON format, e.g. `"1.2"`. Checked before parsing, in
+    /// `input::check_format_version`.
     pub format_version: String,
 
     /// Version of Terraform that produced the plan, e.g. `"1.16.1"`.
