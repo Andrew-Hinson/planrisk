@@ -1,1 +1,6 @@
 /target
+# Terraform working files from fixture generation
+.terraform/
+*.tfstate
+*.tfstate.backup
+plan.out
