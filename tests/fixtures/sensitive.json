@@ -1,0 +1,459 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.16.1",
+  "variables": {
+    "db_password": {
+      "value": "PLANRISK-FIXTURE-SECRET-VARIABLE"
+    }
+  },
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_db_instance.main",
+          "mode": "managed",
+          "type": "aws_db_instance",
+          "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "allocated_storage": 20,
+            "allow_major_version_upgrade": null,
+            "apply_immediately": false,
+            "auto_minor_version_upgrade": true,
+            "blue_green_update": [],
+            "copy_tags_to_snapshot": false,
+            "custom_iam_instance_profile": null,
+            "customer_owned_ip_enabled": null,
+            "dedicated_log_volume": false,
+            "delete_automated_backups": true,
+            "deletion_protection": null,
+            "domain": null,
+            "domain_auth_secret_arn": null,
+            "domain_dns_ips": null,
+            "domain_iam_role_name": null,
+            "domain_ou": null,
+            "enabled_cloudwatch_logs_exports": null,
+            "engine": "postgres",
+            "final_snapshot_identifier": null,
+            "iam_database_authentication_enabled": null,
+            "identifier": "planrisk-fixture-db",
+            "instance_class": "db.t4g.micro",
+            "manage_master_user_password": null,
+            "max_allocated_storage": null,
+            "monitoring_interval": 0,
+            "password": "PLANRISK-FIXTURE-SECRET-VARIABLE",
+            "password_wo": null,
+            "password_wo_version": null,
+            "performance_insights_enabled": false,
+            "publicly_accessible": false,
+            "region": "us-east-1",
+            "replicate_source_db": null,
+            "restore_to_point_in_time": [],
+            "s3_import": [],
+            "skip_final_snapshot": true,
+            "storage_encrypted": null,
+            "tags": null,
+            "timeouts": null,
+            "upgrade_storage_config": null,
+            "username": "planrisk",
+            "warning_event_categories": null
+          },
+          "sensitive_values": {
+            "blue_green_update": [],
+            "listener_endpoint": [],
+            "master_user_secret": [],
+            "password": true,
+            "password_wo": true,
+            "replicas": [],
+            "restore_to_point_in_time": [],
+            "s3_import": [],
+            "tags_all": {},
+            "vpc_security_group_ids": []
+          },
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "identifier": null,
+            "region": null
+          }
+        },
+        {
+          "address": "aws_secretsmanager_secret.api",
+          "mode": "managed",
+          "type": "aws_secretsmanager_secret",
+          "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "description": null,
+            "force_overwrite_replica_secret": false,
+            "kms_key_id": null,
+            "name": "planrisk-fixture-api-key",
+            "recovery_window_in_days": 30,
+            "region": "us-east-1",
+            "replica": [],
+            "tags": null,
+            "type": null
+          },
+          "sensitive_values": {
+            "replica": [],
+            "tags_all": {}
+          },
+          "identity_schema_version": 0,
+          "identity": {
+            "arn": null
+          }
+        },
+        {
+          "address": "aws_secretsmanager_secret_version.api",
+          "mode": "managed",
+          "type": "aws_secretsmanager_secret_version",
+          "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "region": "us-east-1",
+            "secret_binary": null,
+            "secret_string": "PLANRISK-FIXTURE-SECRET-SCHEMA",
+            "secret_string_wo": null,
+            "secret_string_wo_version": null
+          },
+          "sensitive_values": {
+            "secret_binary": true,
+            "secret_string": true,
+            "secret_string_wo": true,
+            "version_stages": []
+          },
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "region": null,
+            "secret_id": null,
+            "version_id": null
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_db_instance.main",
+      "mode": "managed",
+      "type": "aws_db_instance",
+      "name": "main",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "allocated_storage": 20,
+          "allow_major_version_upgrade": null,
+          "apply_immediately": false,
+          "auto_minor_version_upgrade": true,
+          "blue_green_update": [],
+          "copy_tags_to_snapshot": false,
+          "custom_iam_instance_profile": null,
+          "customer_owned_ip_enabled": null,
+          "dedicated_log_volume": false,
+          "delete_automated_backups": true,
+          "deletion_protection": null,
+          "domain": null,
+          "domain_auth_secret_arn": null,
+          "domain_dns_ips": null,
+          "domain_iam_role_name": null,
+          "domain_ou": null,
+          "enabled_cloudwatch_logs_exports": null,
+          "engine": "postgres",
+          "final_snapshot_identifier": null,
+          "iam_database_authentication_enabled": null,
+          "identifier": "planrisk-fixture-db",
+          "instance_class": "db.t4g.micro",
+          "manage_master_user_password": null,
+          "max_allocated_storage": null,
+          "monitoring_interval": 0,
+          "password": "PLANRISK-FIXTURE-SECRET-VARIABLE",
+          "password_wo": null,
+          "password_wo_version": null,
+          "performance_insights_enabled": false,
+          "publicly_accessible": false,
+          "region": "us-east-1",
+          "replicate_source_db": null,
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "skip_final_snapshot": true,
+          "storage_encrypted": null,
+          "tags": null,
+          "timeouts": null,
+          "upgrade_storage_config": null,
+          "username": "planrisk",
+          "warning_event_categories": null
+        },
+        "after_unknown": {
+          "address": true,
+          "arn": true,
+          "availability_zone": true,
+          "backup_retention_period": true,
+          "backup_target": true,
+          "backup_window": true,
+          "blue_green_update": [],
+          "ca_cert_identifier": true,
+          "character_set_name": true,
+          "database_insights_mode": true,
+          "db_name": true,
+          "db_subnet_group_name": true,
+          "domain_fqdn": true,
+          "endpoint": true,
+          "engine_lifecycle_support": true,
+          "engine_version": true,
+          "engine_version_actual": true,
+          "hosted_zone_id": true,
+          "id": true,
+          "identifier_prefix": true,
+          "iops": true,
+          "kms_key_id": true,
+          "latest_restorable_time": true,
+          "license_model": true,
+          "listener_endpoint": true,
+          "maintenance_window": true,
+          "master_user_secret": true,
+          "master_user_secret_kms_key_id": true,
+          "monitoring_role_arn": true,
+          "multi_az": true,
+          "nchar_character_set_name": true,
+          "network_type": true,
+          "option_group_name": true,
+          "parameter_group_name": true,
+          "performance_insights_kms_key_id": true,
+          "performance_insights_retention_period": true,
+          "port": true,
+          "replica_mode": true,
+          "replicas": true,
+          "resource_id": true,
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "snapshot_identifier": true,
+          "status": true,
+          "storage_throughput": true,
+          "storage_type": true,
+          "tags_all": true,
+          "timezone": true,
+          "upgrade_rollout_order": true,
+          "vpc_security_group_ids": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "blue_green_update": [],
+          "listener_endpoint": [],
+          "master_user_secret": [],
+          "password": true,
+          "password_wo": true,
+          "replicas": [],
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "tags_all": {},
+          "vpc_security_group_ids": []
+        },
+        "after_identity": {
+          "account_id": null,
+          "identifier": null,
+          "region": null
+        }
+      }
+    },
+    {
+      "address": "aws_secretsmanager_secret.api",
+      "mode": "managed",
+      "type": "aws_secretsmanager_secret",
+      "name": "api",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "description": null,
+          "force_overwrite_replica_secret": false,
+          "kms_key_id": null,
+          "name": "planrisk-fixture-api-key",
+          "recovery_window_in_days": 30,
+          "region": "us-east-1",
+          "replica": [],
+          "tags": null,
+          "type": null
+        },
+        "after_unknown": {
+          "arn": true,
+          "id": true,
+          "name_prefix": true,
+          "policy": true,
+          "replica": [],
+          "tags_all": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "replica": [],
+          "tags_all": {}
+        },
+        "after_identity": {
+          "arn": null
+        }
+      }
+    },
+    {
+      "address": "aws_secretsmanager_secret_version.api",
+      "mode": "managed",
+      "type": "aws_secretsmanager_secret_version",
+      "name": "api",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "region": "us-east-1",
+          "secret_binary": null,
+          "secret_string": "PLANRISK-FIXTURE-SECRET-SCHEMA",
+          "secret_string_wo": null,
+          "secret_string_wo_version": null
+        },
+        "after_unknown": {
+          "arn": true,
+          "has_secret_string_wo": true,
+          "id": true,
+          "secret_arn": true,
+          "secret_id": true,
+          "version_id": true,
+          "version_stages": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "secret_binary": true,
+          "secret_string": true,
+          "secret_string_wo": true,
+          "version_stages": []
+        },
+        "after_identity": {
+          "account_id": null,
+          "region": null,
+          "secret_id": null,
+          "version_id": null
+        }
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "full_name": "registry.terraform.io/hashicorp/aws",
+        "version_constraint": "~> 6.68",
+        "expressions": {
+          "region": {
+            "constant_value": "us-east-1"
+          },
+          "skip_credentials_validation": {
+            "constant_value": true
+          },
+          "skip_metadata_api_check": {
+            "constant_value": true
+          },
+          "skip_requesting_account_id": {
+            "constant_value": true
+          }
+        }
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_db_instance.main",
+          "mode": "managed",
+          "type": "aws_db_instance",
+          "name": "main",
+          "provider_config_key": "aws",
+          "expressions": {
+            "allocated_storage": {
+              "constant_value": 20
+            },
+            "engine": {
+              "constant_value": "postgres"
+            },
+            "identifier": {
+              "constant_value": "planrisk-fixture-db"
+            },
+            "instance_class": {
+              "constant_value": "db.t4g.micro"
+            },
+            "password": {
+              "references": [
+                "var.db_password"
+              ]
+            },
+            "skip_final_snapshot": {
+              "constant_value": true
+            },
+            "username": {
+              "constant_value": "planrisk"
+            }
+          },
+          "schema_version": 2
+        },
+        {
+          "address": "aws_secretsmanager_secret.api",
+          "mode": "managed",
+          "type": "aws_secretsmanager_secret",
+          "name": "api",
+          "provider_config_key": "aws",
+          "expressions": {
+            "name": {
+              "constant_value": "planrisk-fixture-api-key"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_secretsmanager_secret_version.api",
+          "mode": "managed",
+          "type": "aws_secretsmanager_secret_version",
+          "name": "api",
+          "provider_config_key": "aws",
+          "expressions": {
+            "secret_id": {
+              "references": [
+                "aws_secretsmanager_secret.api.id",
+                "aws_secretsmanager_secret.api"
+              ]
+            },
+            "secret_string": {
+              "constant_value": "PLANRISK-FIXTURE-SECRET-SCHEMA"
+            }
+          },
+          "schema_version": 0
+        }
+      ],
+      "variables": {
+        "db_password": {
+          "default": "PLANRISK-FIXTURE-SECRET-VARIABLE",
+          "sensitive": true
+        }
+      }
+    }
+  },
+  "relevant_attributes": [
+    {
+      "resource": "aws_secretsmanager_secret.api",
+      "attribute": [
+        "id"
+      ]
+    }
+  ],
+  "timestamp": "2026-10-11T18:00:08Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}
