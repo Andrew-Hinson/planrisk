@@ -1,0 +1,6 @@
+---
+source: tests/snapshots.rs
+expression: render_text(&report(&path))
+---
+Terraform 1.16.1, plan format 1.2
+No changes.
