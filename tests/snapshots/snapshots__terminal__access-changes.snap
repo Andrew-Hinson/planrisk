@@ -3,14 +3,23 @@ source: tests/snapshots.rs
 expression: render_text(&report(&path))
 ---
 Terraform 1.16.1, plan format 1.2
-4 to create, 1 to update, 0 to replace, 0 to delete
+7 to create, 3 to update, 0 to replace, 0 to delete
 
 Findings:
+  high      aws_iam_policy.reader: policy grants full "*:*" administrative privileges ("Action": "*" on "Resource": "*"; statement Everything) [iam-wildcard]
+  high      aws_iam_role.app: assume_role_policy grants access to everyone with "Principal": "*" (has a Condition, which planrisk doesn't evaluate) [iam-wildcard]
+  high      aws_iam_role_policy.app_logs: policy grants "Resource": "*" [iam-wildcard]
+  high      aws_s3_bucket_policy.assets_public: policy grants access to everyone with "Principal": "*" [iam-wildcard]
   high      aws_security_group.web: allows ingress from 0.0.0.0/0 to port 22 (tcp) [sg-open-ingress]
   high      aws_security_group_rule.ssh_ipv6: allows ingress from ::/0 to port 22 (tcp) [sg-open-ingress]
   high      aws_vpc_security_group_ingress_rule.everything: allows ingress from 0.0.0.0/0 to all ports and protocols [sg-open-ingress]
 
 Changes:
+  create   aws_iam_policy.deny_all
+  update   aws_iam_policy.reader
+  update   aws_iam_role.app
+  create   aws_iam_role_policy.app_logs
+  create   aws_s3_bucket_policy.assets_public
   update   aws_security_group.web
   create   aws_security_group_rule.egress_all
   create   aws_security_group_rule.ssh_ipv6
