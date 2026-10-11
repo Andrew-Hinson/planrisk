@@ -9,6 +9,7 @@ mod blast_radius;
 mod delete;
 pub mod explain;
 mod replace;
+mod sg_open_ingress;
 pub mod stateful;
 mod stateful_delete;
 mod stateful_replace;
@@ -59,6 +60,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(delete::Delete),
         Box::new(replace::Replace),
         Box::new(blast_radius::BlastRadius::default()),
+        Box::new(sg_open_ingress::SgOpenIngress),
     ]
 }
 

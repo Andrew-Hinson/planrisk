@@ -1,0 +1,987 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.16.1",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_security_group.public_https",
+          "mode": "managed",
+          "type": "aws_security_group",
+          "name": "public_https",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "arn": "fake-arn",
+            "description": "Public HTTPS",
+            "egress": [],
+            "id": "fake-aws_security_group.public_https",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "HTTPS from anywhere",
+                "from_port": 443,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 443
+              }
+            ],
+            "name": "planrisk-fixture-public-https",
+            "name_prefix": "fake-name_prefix",
+            "owner_id": "fake-owner_id",
+            "region": "us-east-1",
+            "revoke_rules_on_delete": false,
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "vpc_id": "fake-vpc_id"
+          },
+          "sensitive_values": {
+            "egress": [],
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  false
+                ],
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "security_groups": []
+              }
+            ],
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_security_group.web",
+          "mode": "managed",
+          "type": "aws_security_group",
+          "name": "web",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "arn": "fake-arn",
+            "description": "Web servers",
+            "egress": [],
+            "id": "fake-aws_security_group.web",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "SSH from anywhere",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 22
+              },
+              {
+                "cidr_blocks": [
+                  "10.0.0.0/8"
+                ],
+                "description": "HTTPS from the VPC",
+                "from_port": 443,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 443
+              }
+            ],
+            "name": "planrisk-fixture-web",
+            "name_prefix": "fake-name_prefix",
+            "owner_id": "fake-owner_id",
+            "region": "us-east-1",
+            "revoke_rules_on_delete": false,
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "vpc_id": "fake-vpc_id"
+          },
+          "sensitive_values": {
+            "egress": [],
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  false
+                ],
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "security_groups": []
+              },
+              {
+                "cidr_blocks": [
+                  false
+                ],
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "security_groups": []
+              }
+            ],
+            "tags_all": {}
+          },
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "id": null,
+            "region": null
+          }
+        },
+        {
+          "address": "aws_security_group_rule.egress_all",
+          "mode": "managed",
+          "type": "aws_security_group_rule",
+          "name": "egress_all",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "cidr_blocks": [
+              "0.0.0.0/0"
+            ],
+            "description": null,
+            "from_port": 0,
+            "ipv6_cidr_blocks": null,
+            "prefix_list_ids": null,
+            "protocol": "-1",
+            "region": "us-east-1",
+            "security_group_id": "fake-aws_security_group.web",
+            "self": false,
+            "timeouts": null,
+            "to_port": 0,
+            "type": "egress"
+          },
+          "sensitive_values": {
+            "cidr_blocks": [
+              false
+            ]
+          }
+        },
+        {
+          "address": "aws_security_group_rule.ssh_ipv6",
+          "mode": "managed",
+          "type": "aws_security_group_rule",
+          "name": "ssh_ipv6",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "cidr_blocks": null,
+            "description": null,
+            "from_port": 22,
+            "ipv6_cidr_blocks": [
+              "::/0"
+            ],
+            "prefix_list_ids": null,
+            "protocol": "tcp",
+            "region": "us-east-1",
+            "security_group_id": "fake-aws_security_group.web",
+            "self": false,
+            "timeouts": null,
+            "to_port": 22,
+            "type": "ingress"
+          },
+          "sensitive_values": {
+            "ipv6_cidr_blocks": [
+              false
+            ]
+          }
+        },
+        {
+          "address": "aws_vpc_security_group_ingress_rule.everything",
+          "mode": "managed",
+          "type": "aws_vpc_security_group_ingress_rule",
+          "name": "everything",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "cidr_ipv4": "0.0.0.0/0",
+            "cidr_ipv6": null,
+            "description": null,
+            "from_port": null,
+            "ip_protocol": "-1",
+            "prefix_list_id": null,
+            "referenced_security_group_id": null,
+            "region": "us-east-1",
+            "security_group_id": "fake-aws_security_group.web",
+            "tags": null,
+            "tags_all": {},
+            "to_port": null
+          },
+          "sensitive_values": {
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_vpc_security_group_ingress_rule.vpc_postgres",
+          "mode": "managed",
+          "type": "aws_vpc_security_group_ingress_rule",
+          "name": "vpc_postgres",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "cidr_ipv4": "10.0.0.0/16",
+            "cidr_ipv6": null,
+            "description": null,
+            "from_port": 5432,
+            "ip_protocol": "tcp",
+            "prefix_list_id": null,
+            "referenced_security_group_id": null,
+            "region": "us-east-1",
+            "security_group_id": "fake-aws_security_group.web",
+            "tags": null,
+            "tags_all": {},
+            "to_port": 5432
+          },
+          "sensitive_values": {
+            "tags_all": {}
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_security_group.public_https",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "public_https",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "description": "Public HTTPS",
+          "egress": [],
+          "id": "fake-aws_security_group.public_https",
+          "ingress": [
+            {
+              "cidr_blocks": [
+                "0.0.0.0/0"
+              ],
+              "description": "HTTPS from anywhere",
+              "from_port": 443,
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "protocol": "tcp",
+              "security_groups": [],
+              "self": false,
+              "to_port": 443
+            }
+          ],
+          "name": "planrisk-fixture-public-https",
+          "name_prefix": "fake-name_prefix",
+          "owner_id": "fake-owner_id",
+          "region": "us-east-1",
+          "revoke_rules_on_delete": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "vpc_id": "fake-vpc_id"
+        },
+        "after": {
+          "arn": "fake-arn",
+          "description": "Public HTTPS",
+          "egress": [],
+          "id": "fake-aws_security_group.public_https",
+          "ingress": [
+            {
+              "cidr_blocks": [
+                "0.0.0.0/0"
+              ],
+              "description": "HTTPS from anywhere",
+              "from_port": 443,
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "protocol": "tcp",
+              "security_groups": [],
+              "self": false,
+              "to_port": 443
+            }
+          ],
+          "name": "planrisk-fixture-public-https",
+          "name_prefix": "fake-name_prefix",
+          "owner_id": "fake-owner_id",
+          "region": "us-east-1",
+          "revoke_rules_on_delete": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "vpc_id": "fake-vpc_id"
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "egress": [],
+          "ingress": [
+            {
+              "cidr_blocks": [
+                false
+              ],
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "security_groups": []
+            }
+          ],
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "egress": [],
+          "ingress": [
+            {
+              "cidr_blocks": [
+                false
+              ],
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "security_groups": []
+            }
+          ],
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_security_group.web",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "web",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "description": "Web servers",
+          "egress": [],
+          "id": "fake-aws_security_group.web",
+          "ingress": [
+            {
+              "cidr_blocks": [
+                "10.0.0.0/8"
+              ],
+              "description": "HTTPS from the VPC",
+              "from_port": 443,
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "protocol": "tcp",
+              "security_groups": [],
+              "self": false,
+              "to_port": 443
+            }
+          ],
+          "name": "planrisk-fixture-web",
+          "name_prefix": "fake-name_prefix",
+          "owner_id": "fake-owner_id",
+          "region": "us-east-1",
+          "revoke_rules_on_delete": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "vpc_id": "fake-vpc_id"
+        },
+        "after": {
+          "arn": "fake-arn",
+          "description": "Web servers",
+          "egress": [],
+          "id": "fake-aws_security_group.web",
+          "ingress": [
+            {
+              "cidr_blocks": [
+                "0.0.0.0/0"
+              ],
+              "description": "SSH from anywhere",
+              "from_port": 22,
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "protocol": "tcp",
+              "security_groups": [],
+              "self": false,
+              "to_port": 22
+            },
+            {
+              "cidr_blocks": [
+                "10.0.0.0/8"
+              ],
+              "description": "HTTPS from the VPC",
+              "from_port": 443,
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "protocol": "tcp",
+              "security_groups": [],
+              "self": false,
+              "to_port": 443
+            }
+          ],
+          "name": "planrisk-fixture-web",
+          "name_prefix": "fake-name_prefix",
+          "owner_id": "fake-owner_id",
+          "region": "us-east-1",
+          "revoke_rules_on_delete": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "vpc_id": "fake-vpc_id"
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "egress": [],
+          "ingress": [
+            {
+              "cidr_blocks": [
+                false
+              ],
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "security_groups": []
+            }
+          ],
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "egress": [],
+          "ingress": [
+            {
+              "cidr_blocks": [
+                false
+              ],
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "security_groups": []
+            },
+            {
+              "cidr_blocks": [
+                false
+              ],
+              "ipv6_cidr_blocks": [],
+              "prefix_list_ids": [],
+              "security_groups": []
+            }
+          ],
+          "tags_all": {}
+        },
+        "after_identity": {
+          "account_id": null,
+          "id": null,
+          "region": null
+        }
+      }
+    },
+    {
+      "address": "aws_security_group_rule.egress_all",
+      "mode": "managed",
+      "type": "aws_security_group_rule",
+      "name": "egress_all",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cidr_blocks": [
+            "0.0.0.0/0"
+          ],
+          "description": null,
+          "from_port": 0,
+          "ipv6_cidr_blocks": null,
+          "prefix_list_ids": null,
+          "protocol": "-1",
+          "region": "us-east-1",
+          "security_group_id": "fake-aws_security_group.web",
+          "self": false,
+          "timeouts": null,
+          "to_port": 0,
+          "type": "egress"
+        },
+        "after_unknown": {
+          "cidr_blocks": [
+            false
+          ],
+          "id": true,
+          "security_group_rule_id": true,
+          "source_security_group_id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "cidr_blocks": [
+            false
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_security_group_rule.ssh_ipv6",
+      "mode": "managed",
+      "type": "aws_security_group_rule",
+      "name": "ssh_ipv6",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cidr_blocks": null,
+          "description": null,
+          "from_port": 22,
+          "ipv6_cidr_blocks": [
+            "::/0"
+          ],
+          "prefix_list_ids": null,
+          "protocol": "tcp",
+          "region": "us-east-1",
+          "security_group_id": "fake-aws_security_group.web",
+          "self": false,
+          "timeouts": null,
+          "to_port": 22,
+          "type": "ingress"
+        },
+        "after_unknown": {
+          "id": true,
+          "ipv6_cidr_blocks": [
+            false
+          ],
+          "security_group_rule_id": true,
+          "source_security_group_id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "ipv6_cidr_blocks": [
+            false
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_vpc_security_group_ingress_rule.everything",
+      "mode": "managed",
+      "type": "aws_vpc_security_group_ingress_rule",
+      "name": "everything",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cidr_ipv4": "0.0.0.0/0",
+          "cidr_ipv6": null,
+          "description": null,
+          "from_port": null,
+          "ip_protocol": "-1",
+          "prefix_list_id": null,
+          "referenced_security_group_id": null,
+          "region": "us-east-1",
+          "security_group_id": "fake-aws_security_group.web",
+          "tags": null,
+          "tags_all": {},
+          "to_port": null
+        },
+        "after_unknown": {
+          "arn": true,
+          "id": true,
+          "security_group_rule_id": true,
+          "tags_all": {}
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_vpc_security_group_ingress_rule.vpc_postgres",
+      "mode": "managed",
+      "type": "aws_vpc_security_group_ingress_rule",
+      "name": "vpc_postgres",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cidr_ipv4": "10.0.0.0/16",
+          "cidr_ipv6": null,
+          "description": null,
+          "from_port": 5432,
+          "ip_protocol": "tcp",
+          "prefix_list_id": null,
+          "referenced_security_group_id": null,
+          "region": "us-east-1",
+          "security_group_id": "fake-aws_security_group.web",
+          "tags": null,
+          "tags_all": {},
+          "to_port": 5432
+        },
+        "after_unknown": {
+          "arn": true,
+          "id": true,
+          "security_group_rule_id": true,
+          "tags_all": {}
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "tags_all": {}
+        }
+      }
+    }
+  ],
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.16.1",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "aws_security_group.public_https",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "public_https",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 1,
+            "values": {
+              "arn": "fake-arn",
+              "description": "Public HTTPS",
+              "egress": [],
+              "id": "fake-aws_security_group.public_https",
+              "ingress": [
+                {
+                  "cidr_blocks": [
+                    "0.0.0.0/0"
+                  ],
+                  "description": "HTTPS from anywhere",
+                  "from_port": 443,
+                  "ipv6_cidr_blocks": [],
+                  "prefix_list_ids": [],
+                  "protocol": "tcp",
+                  "security_groups": [],
+                  "self": false,
+                  "to_port": 443
+                }
+              ],
+              "name": "planrisk-fixture-public-https",
+              "name_prefix": "fake-name_prefix",
+              "owner_id": "fake-owner_id",
+              "region": "us-east-1",
+              "revoke_rules_on_delete": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "vpc_id": "fake-vpc_id"
+            },
+            "sensitive_values": {
+              "egress": [],
+              "ingress": [
+                {
+                  "cidr_blocks": [
+                    false
+                  ],
+                  "ipv6_cidr_blocks": [],
+                  "prefix_list_ids": [],
+                  "security_groups": []
+                }
+              ],
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_security_group.web",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "web",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 1,
+            "values": {
+              "arn": "fake-arn",
+              "description": "Web servers",
+              "egress": [],
+              "id": "fake-aws_security_group.web",
+              "ingress": [
+                {
+                  "cidr_blocks": [
+                    "10.0.0.0/8"
+                  ],
+                  "description": "HTTPS from the VPC",
+                  "from_port": 443,
+                  "ipv6_cidr_blocks": [],
+                  "prefix_list_ids": [],
+                  "protocol": "tcp",
+                  "security_groups": [],
+                  "self": false,
+                  "to_port": 443
+                }
+              ],
+              "name": "planrisk-fixture-web",
+              "name_prefix": "fake-name_prefix",
+              "owner_id": "fake-owner_id",
+              "region": "us-east-1",
+              "revoke_rules_on_delete": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "vpc_id": "fake-vpc_id"
+            },
+            "sensitive_values": {
+              "egress": [],
+              "ingress": [
+                {
+                  "cidr_blocks": [
+                    false
+                  ],
+                  "ipv6_cidr_blocks": [],
+                  "prefix_list_ids": [],
+                  "security_groups": []
+                }
+              ],
+              "tags_all": {}
+            }
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "full_name": "registry.terraform.io/hashicorp/aws",
+        "version_constraint": "~> 6.68",
+        "expressions": {
+          "region": {
+            "constant_value": "us-east-1"
+          },
+          "skip_credentials_validation": {
+            "constant_value": true
+          },
+          "skip_metadata_api_check": {
+            "constant_value": true
+          },
+          "skip_requesting_account_id": {
+            "constant_value": true
+          }
+        }
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_security_group.public_https",
+          "mode": "managed",
+          "type": "aws_security_group",
+          "name": "public_https",
+          "provider_config_key": "aws",
+          "expressions": {
+            "description": {
+              "constant_value": "Public HTTPS"
+            },
+            "ingress": {
+              "constant_value": [
+                {
+                  "cidr_blocks": [
+                    "0.0.0.0/0"
+                  ],
+                  "description": "HTTPS from anywhere",
+                  "from_port": 443,
+                  "ipv6_cidr_blocks": null,
+                  "prefix_list_ids": null,
+                  "protocol": "tcp",
+                  "security_groups": null,
+                  "self": null,
+                  "to_port": 443
+                }
+              ]
+            },
+            "name": {
+              "constant_value": "planrisk-fixture-public-https"
+            }
+          },
+          "schema_version": 1
+        },
+        {
+          "address": "aws_security_group.web",
+          "mode": "managed",
+          "type": "aws_security_group",
+          "name": "web",
+          "provider_config_key": "aws",
+          "expressions": {
+            "description": {
+              "constant_value": "Web servers"
+            },
+            "ingress": {
+              "constant_value": [
+                {
+                  "cidr_blocks": [
+                    "10.0.0.0/8"
+                  ],
+                  "description": "HTTPS from the VPC",
+                  "from_port": 443,
+                  "ipv6_cidr_blocks": null,
+                  "prefix_list_ids": null,
+                  "protocol": "tcp",
+                  "security_groups": null,
+                  "self": null,
+                  "to_port": 443
+                },
+                {
+                  "cidr_blocks": [
+                    "0.0.0.0/0"
+                  ],
+                  "description": "SSH from anywhere",
+                  "from_port": 22,
+                  "ipv6_cidr_blocks": null,
+                  "prefix_list_ids": null,
+                  "protocol": "tcp",
+                  "security_groups": null,
+                  "self": null,
+                  "to_port": 22
+                }
+              ]
+            },
+            "name": {
+              "constant_value": "planrisk-fixture-web"
+            }
+          },
+          "schema_version": 1
+        },
+        {
+          "address": "aws_security_group_rule.egress_all",
+          "mode": "managed",
+          "type": "aws_security_group_rule",
+          "name": "egress_all",
+          "provider_config_key": "aws",
+          "expressions": {
+            "cidr_blocks": {
+              "constant_value": [
+                "0.0.0.0/0"
+              ]
+            },
+            "from_port": {
+              "constant_value": 0
+            },
+            "protocol": {
+              "constant_value": "-1"
+            },
+            "security_group_id": {
+              "references": [
+                "aws_security_group.web.id",
+                "aws_security_group.web"
+              ]
+            },
+            "to_port": {
+              "constant_value": 0
+            },
+            "type": {
+              "constant_value": "egress"
+            }
+          },
+          "schema_version": 2
+        },
+        {
+          "address": "aws_security_group_rule.ssh_ipv6",
+          "mode": "managed",
+          "type": "aws_security_group_rule",
+          "name": "ssh_ipv6",
+          "provider_config_key": "aws",
+          "expressions": {
+            "from_port": {
+              "constant_value": 22
+            },
+            "ipv6_cidr_blocks": {
+              "constant_value": [
+                "::/0"
+              ]
+            },
+            "protocol": {
+              "constant_value": "tcp"
+            },
+            "security_group_id": {
+              "references": [
+                "aws_security_group.web.id",
+                "aws_security_group.web"
+              ]
+            },
+            "to_port": {
+              "constant_value": 22
+            },
+            "type": {
+              "constant_value": "ingress"
+            }
+          },
+          "schema_version": 2
+        },
+        {
+          "address": "aws_vpc_security_group_ingress_rule.everything",
+          "mode": "managed",
+          "type": "aws_vpc_security_group_ingress_rule",
+          "name": "everything",
+          "provider_config_key": "aws",
+          "expressions": {
+            "cidr_ipv4": {
+              "constant_value": "0.0.0.0/0"
+            },
+            "ip_protocol": {
+              "constant_value": "-1"
+            },
+            "security_group_id": {
+              "references": [
+                "aws_security_group.web.id",
+                "aws_security_group.web"
+              ]
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_vpc_security_group_ingress_rule.vpc_postgres",
+          "mode": "managed",
+          "type": "aws_vpc_security_group_ingress_rule",
+          "name": "vpc_postgres",
+          "provider_config_key": "aws",
+          "expressions": {
+            "cidr_ipv4": {
+              "constant_value": "10.0.0.0/16"
+            },
+            "from_port": {
+              "constant_value": 5432
+            },
+            "ip_protocol": {
+              "constant_value": "tcp"
+            },
+            "security_group_id": {
+              "references": [
+                "aws_security_group.web.id",
+                "aws_security_group.web"
+              ]
+            },
+            "to_port": {
+              "constant_value": 5432
+            }
+          },
+          "schema_version": 0
+        }
+      ]
+    }
+  },
+  "relevant_attributes": [
+    {
+      "resource": "aws_security_group.web",
+      "attribute": [
+        "id"
+      ]
+    }
+  ],
+  "timestamp": "2026-10-11T18:53:52Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}
