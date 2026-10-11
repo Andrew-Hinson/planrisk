@@ -82,3 +82,25 @@ fn unsupported_format_version_exits_1() {
         .code(1)
         .stderr(contains("plan format version 2.0"));
 }
+
+#[test]
+fn json_format_is_valid_json() {
+    let output = cargo_bin_cmd!("planrisk")
+        .args([CREATE_ONLY, "--format", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(json["format_version"], "1.0");
+    assert_eq!(json["counts"]["create"], 3);
+}
+
+#[test]
+fn unknown_format_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .args([CREATE_ONLY, "--format", "xml"])
+        .assert()
+        .code(1);
+}
