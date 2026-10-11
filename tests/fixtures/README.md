@@ -34,3 +34,4 @@ grep -n -i -E '/home|/Users|[0-9]{12}|arn:' tests/fixtures/<name>.json
 |---|---|---|
 | `empty.json` | 1.16.1 | No resources. There is no `resource_changes` key at all, not an empty list. |
 | `create-only.json` | 1.16.1, AWS provider 6.68 | Three creates: an S3 bucket, a security group with an inline ingress rule, and an SQS queue inside a local module (`module.queue`). |
+| `sensitive.json` | 1.16.1, AWS provider 6.68 | Two secrets in plain text, as `terraform show -json` writes them: `PLANRISK-FIXTURE-SECRET-VARIABLE` from a `sensitive` variable (into `aws_db_instance.password`) and `PLANRISK-FIXTURE-SECRET-SCHEMA` from an attribute the provider marks sensitive (`aws_secretsmanager_secret_version.secret_string`). `tests/redaction.rs` checks neither appears in any output. These are fake values made for this fixture. |

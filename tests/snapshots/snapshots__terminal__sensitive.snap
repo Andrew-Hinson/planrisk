@@ -1,0 +1,13 @@
+---
+source: tests/snapshots.rs
+expression: render_text(&report(&path))
+---
+Terraform 1.16.1, plan format 1.2
+3 to create, 0 to update, 0 to replace, 0 to delete
+
+No findings.
+
+Changes:
+  create   aws_db_instance.main
+  create   aws_secretsmanager_secret.api
+  create   aws_secretsmanager_secret_version.api

@@ -21,6 +21,7 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::action::Action;
+use crate::redact::redact;
 
 /// A whole plan: the top-level object of `terraform show -json`.
 #[derive(Debug, Deserialize)]
@@ -99,27 +100,28 @@ pub struct Change {
     #[serde(rename = "actions")]
     pub action: Action,
 
+    // The values below are private: sensitive values appear in them in plain
+    // text. Read them through `before()` / `after()`, which hide secrets.
     /// Attribute values before the change. `Null` for creates.
     #[serde(default)]
-    pub before: Value,
+    before: Value,
 
     /// Attribute values after the change. `Null` for deletes.
     /// Values not known until apply are missing here; see `after_unknown`.
     #[serde(default)]
-    pub after: Value,
+    after: Value,
 
     /// Same shape as `after`, with `true` at every value not known until apply.
     #[serde(default)]
     pub after_unknown: Value,
 
     /// Same shape as `before`, with `true` at every sensitive value.
-    /// Sensitive values themselves appear in plain text in `before` (PLAN.md §8).
     #[serde(default)]
-    pub before_sensitive: Value,
+    before_sensitive: Value,
 
     /// Same shape as `after`, with `true` at every sensitive value.
     #[serde(default)]
-    pub after_sensitive: Value,
+    after_sensitive: Value,
 
     /// For replaces: the attribute paths that forced the replacement.
     /// Each path is a list of steps, and each step is a string (attribute name)
@@ -133,6 +135,33 @@ pub struct Change {
 }
 
 impl Change {
+    /// Attribute values before the change, with sensitive values replaced by
+    /// `(sensitive value)`. Safe to print. `Null` for creates.
+    pub fn before(&self) -> Value {
+        redact(&self.before, &self.before_sensitive)
+    }
+
+    /// Attribute values after the change, with sensitive values replaced by
+    /// `(sensitive value)`. Safe to print. `Null` for deletes.
+    pub fn after(&self) -> Value {
+        redact(&self.after, &self.after_sensitive)
+    }
+
+    /// The real values before the change, **including secrets**.
+    ///
+    /// Only for comparisons inside rules, e.g. "is this CIDR 0.0.0.0/0?".
+    /// Never put anything from here into a finding or any other output;
+    /// use [`Change::before`] for that.
+    pub fn before_unredacted(&self) -> &Value {
+        &self.before
+    }
+
+    /// The real values after the change, **including secrets**. See
+    /// [`Change::before_unredacted`] for the rules on using it.
+    pub fn after_unredacted(&self) -> &Value {
+        &self.after
+    }
+
     /// True when this change imports an existing object into Terraform.
     pub fn is_importing(&self) -> bool {
         self.importing.is_some()
@@ -192,7 +221,7 @@ mod tests {
         for rc in &plan.resource_changes {
             assert_eq!(rc.change.action, Action::Create);
             assert_eq!(rc.mode, "managed");
-            assert!(rc.change.before.is_null());
+            assert!(rc.change.before().is_null());
             assert!(!rc.change.is_importing());
         }
     }
