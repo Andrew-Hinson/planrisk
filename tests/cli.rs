@@ -104,3 +104,89 @@ fn unknown_format_exits_1() {
         .assert()
         .code(1);
 }
+
+/// A plan that replaces a database: one critical finding (stateful-replace).
+/// Replace with the stateful-replace fixture once it exists (issue #18).
+const DB_REPLACE: &str = r#"{
+    "format_version": "1.2", "planned_values": {},
+    "resource_changes": [{
+        "address": "aws_db_instance.main", "type": "aws_db_instance", "name": "main",
+        "change": {"actions": ["delete", "create"]}
+    }]
+}"#;
+
+#[test]
+fn findings_do_not_fail_without_fail_on() {
+    cargo_bin_cmd!("planrisk")
+        .arg("-")
+        .write_stdin(DB_REPLACE)
+        .assert()
+        .code(0)
+        .stdout(contains("critical"));
+}
+
+#[test]
+fn fail_on_at_or_below_the_finding_exits_2() {
+    for threshold in ["low", "medium", "high", "critical"] {
+        cargo_bin_cmd!("planrisk")
+            .args(["-", "--fail-on", threshold])
+            .write_stdin(DB_REPLACE)
+            .assert()
+            .code(2)
+            .stderr(contains(format!(
+                "1 finding at or above --fail-on {threshold}"
+            )));
+    }
+}
+
+#[test]
+fn fail_on_above_every_finding_exits_0() {
+    // The only finding in this plan is medium (a plain delete).
+    let medium_only = r#"{"format_version": "1.2", "planned_values": {},
+        "resource_changes": [{"address": "aws_instance.web", "type": "aws_instance",
+                              "change": {"actions": ["delete"]}}]}"#;
+    for threshold in ["high", "critical"] {
+        cargo_bin_cmd!("planrisk")
+            .args(["-", "--fail-on", threshold])
+            .write_stdin(medium_only)
+            .assert()
+            .code(0);
+    }
+    cargo_bin_cmd!("planrisk")
+        .args(["-", "--fail-on", "medium"])
+        .write_stdin(medium_only)
+        .assert()
+        .code(2);
+}
+
+#[test]
+fn fail_on_still_prints_the_full_output() {
+    cargo_bin_cmd!("planrisk")
+        .args(["-", "--fail-on", "critical", "--format", "json"])
+        .write_stdin(DB_REPLACE)
+        .assert()
+        .code(2)
+        .stdout(contains(r#""max_severity": "critical""#));
+}
+
+#[test]
+fn fail_on_with_errors_still_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .args(["does-not-exist.json", "--fail-on", "low"])
+        .assert()
+        .code(1);
+    cargo_bin_cmd!("planrisk")
+        .args([CREATE_ONLY, "--fail-on", "severe"])
+        .assert()
+        .code(1);
+}
+
+#[test]
+fn help_lists_exit_codes() {
+    cargo_bin_cmd!("planrisk")
+        .arg("--help")
+        .assert()
+        .success()
+        .stdout(contains("Exit codes:"))
+        .stdout(contains("--fail-on <SEVERITY>"));
+}
