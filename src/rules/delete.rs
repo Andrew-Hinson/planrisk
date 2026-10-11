@@ -2,7 +2,7 @@
 
 use crate::action::Action;
 use crate::finding::{Finding, Severity};
-use crate::plan::Plan;
+use crate::plan::{Plan, ResourceChange};
 use crate::rules::{Rule, explain};
 
 pub struct Delete;
@@ -23,33 +23,49 @@ impl Rule for Delete {
     fn check(&self, plan: &Plan) -> Vec<Finding> {
         plan.resource_changes
             .iter()
-            // Replaces also destroy, but the `replace` rule reports those.
-            // Forget actions remove from state without destroying, so
-            // `deletes_object` is false for them.
-            .filter(|rc| {
-                rc.change.action.deletes_object()
-                    && !matches!(rc.change.action, Action::Replace { .. })
-            })
-            .map(|rc| {
-                let message = match &rc.deposed {
-                    Some(key) => format!(
-                        "deposed object {key} will be destroyed (left over from a failed replacement)"
-                    ),
-                    None => "will be destroyed".to_string(),
-                };
-                let reason = match &rc.change.action {
-                    Action::Unknown(list) => Some(format!("unrecognised action list {list:?}")),
-                    _ => explain::action_reason(rc),
-                };
-                Finding {
-                    rule_id: self.id(),
-                    severity: self.default_severity(),
-                    address: Some(rc.address.clone()),
-                    message,
-                    reason,
-                }
+            .filter(|rc| is_plain_delete(&rc.change.action))
+            .map(|rc| Finding {
+                rule_id: self.id(),
+                severity: self.default_severity(),
+                address: Some(rc.address.clone()),
+                message: message(rc, None),
+                reason: reason(rc),
             })
             .collect()
+    }
+}
+
+// The helpers below are shared with `stateful_delete`, so both rules
+// describe a destroy the same way.
+
+/// True when the object is destroyed and not re-created.
+///
+/// Replaces also destroy, but the `replace` rule reports those. Forget
+/// actions remove from state without destroying, so `deletes_object` is
+/// false for them.
+pub(super) fn is_plain_delete(action: &Action) -> bool {
+    action.deletes_object() && !matches!(action, Action::Replace { .. })
+}
+
+/// e.g. "will be destroyed", or "database will be destroyed" with a `noun`.
+pub(super) fn message(rc: &ResourceChange, noun: Option<&str>) -> String {
+    match (&rc.deposed, noun) {
+        (Some(key), Some(noun)) => format!(
+            "deposed {noun} object {key} will be destroyed (left over from a failed replacement)"
+        ),
+        (Some(key), None) => {
+            format!("deposed object {key} will be destroyed (left over from a failed replacement)")
+        }
+        (None, Some(noun)) => format!("{noun} will be destroyed"),
+        (None, None) => "will be destroyed".to_string(),
+    }
+}
+
+/// Why Terraform plans the destroy, if known.
+pub(super) fn reason(rc: &ResourceChange) -> Option<String> {
+    match &rc.change.action {
+        Action::Unknown(list) => Some(format!("unrecognised action list {list:?}")),
+        _ => explain::action_reason(rc),
     }
 }
 

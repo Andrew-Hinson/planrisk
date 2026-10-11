@@ -29,20 +29,29 @@ impl Rule for Replace {
                 let Action::Replace { create_first } = rc.change.action else {
                     return None;
                 };
-                let message = if create_first {
-                    "will be replaced (new object created before the old one is destroyed)"
-                } else {
-                    "will be destroyed and re-created"
-                };
                 Some(Finding {
                     rule_id: self.id(),
                     severity: self.default_severity(),
                     address: Some(rc.address.clone()),
-                    message: message.to_string(),
+                    message: message(create_first, None),
                     reason: explain::replace_reason(rc),
                 })
             })
             .collect()
+    }
+}
+
+/// e.g. "will be destroyed and re-created", or "database will be destroyed
+/// and re-created" with a `noun`. Shared with `stateful_replace`.
+pub(super) fn message(create_first: bool, noun: Option<&str>) -> String {
+    let what = if create_first {
+        "will be replaced (new object created before the old one is destroyed)"
+    } else {
+        "will be destroyed and re-created"
+    };
+    match noun {
+        Some(noun) => format!("{noun} {what}"),
+        None => what.to_string(),
     }
 }
 
