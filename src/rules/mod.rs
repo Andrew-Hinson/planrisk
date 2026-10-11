@@ -8,6 +8,9 @@
 mod delete;
 pub mod explain;
 mod replace;
+pub mod stateful;
+mod stateful_delete;
+mod stateful_replace;
 
 use crate::finding::{Finding, Severity};
 use crate::plan::Plan;
@@ -29,6 +32,17 @@ pub trait Rule {
     /// Severity of this rule's findings unless config overrides it.
     fn default_severity(&self) -> Severity;
 
+    /// The ID of a more general rule this one replaces, if any.
+    ///
+    /// When this rule reports a resource, the general rule's finding for the
+    /// same resource is dropped, so a reviewer sees one finding, not two.
+    /// For example, `stateful-delete` supersedes `delete`. Done in the report
+    /// rather than inside `delete`, so if config disables `stateful-delete`,
+    /// the plain `delete` finding still appears.
+    fn supersedes(&self) -> Option<&'static str> {
+        None
+    }
+
     /// Returns every risk this rule finds in the plan; empty if none.
     fn check(&self, plan: &Plan) -> Vec<Finding>;
 }
@@ -38,5 +52,10 @@ pub trait Rule {
 /// `Box<dyn Rule>` lets one list hold different rule types: each `Box` points
 /// to some type that implements `Rule`, and calls are dispatched at runtime.
 pub fn all_rules() -> Vec<Box<dyn Rule>> {
-    vec![Box::new(delete::Delete), Box::new(replace::Replace)]
+    vec![
+        Box::new(stateful_delete::StatefulDelete),
+        Box::new(stateful_replace::StatefulReplace),
+        Box::new(delete::Delete),
+        Box::new(replace::Replace),
+    ]
 }
