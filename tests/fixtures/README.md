@@ -53,3 +53,4 @@ grep -n -i -E '/home|/Users|[0-9]{12}|arn:' tests/fixtures/<name>.json
 | `import.json` | 1.16.1, random provider 3.9 | Two `import` blocks: one that matches the config (pure import, `no-op`) and one that Terraform must then replace. |
 | `hand-edited-unknown-action.json` | hand-edited from `create-only.json` | One resource's actions changed to `["teleport"]`, an action planrisk doesn't recognise. |
 | `invalid/format-version-2.json` | hand-edited from `empty.json` | `format_version` `2.0`, which planrisk must reject. |
+| `access-changes.json` | 1.16.1, AWS provider 6.68, from `before/` | Changes that widen access, next to look-alikes that must not fire. Security groups: inline SSH ingress from `0.0.0.0/0` added, `aws_security_group_rule` from `::/0`, `aws_vpc_security_group_ingress_rule` for all protocols from `0.0.0.0/0` (all fire); an already-open group, an egress rule and a private-range rule (don't fire). Extended by the other access rules (#20–#22). |

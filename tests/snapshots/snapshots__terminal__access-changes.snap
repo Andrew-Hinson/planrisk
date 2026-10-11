@@ -1,0 +1,18 @@
+---
+source: tests/snapshots.rs
+expression: render_text(&report(&path))
+---
+Terraform 1.16.1, plan format 1.2
+4 to create, 1 to update, 0 to replace, 0 to delete
+
+Findings:
+  high      aws_security_group.web: allows ingress from 0.0.0.0/0 to port 22 (tcp) [sg-open-ingress]
+  high      aws_security_group_rule.ssh_ipv6: allows ingress from ::/0 to port 22 (tcp) [sg-open-ingress]
+  high      aws_vpc_security_group_ingress_rule.everything: allows ingress from 0.0.0.0/0 to all ports and protocols [sg-open-ingress]
+
+Changes:
+  update   aws_security_group.web
+  create   aws_security_group_rule.egress_all
+  create   aws_security_group_rule.ssh_ipv6
+  create   aws_vpc_security_group_ingress_rule.everything
+  create   aws_vpc_security_group_ingress_rule.vpc_postgres
