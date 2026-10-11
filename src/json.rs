@@ -20,8 +20,8 @@
 //!               "read": 0, "import": 0, "move": 0, "unknown": 0 },
 //!   "findings": [
 //!     { "rule_id": "stateful-replace", "severity": "critical",
-//!       "address": "aws_db_instance.main", "message": "database will be destroyed and re-created",
-//!       "reason": "forced by changes to engine_version" }
+//!       "address": "aws_db_instance.main", "message": "database must be replaced",
+//!       "reason": "destroy and then create replacement; forced by changes to engine_version" }
 //!   ]
 //! }
 //! ```
@@ -98,8 +98,8 @@ mod tests {
                 "rule_id": "stateful-replace",
                 "severity": "critical",
                 "address": "aws_db_instance.main",
-                "message": "database will be destroyed and re-created",
-                "reason": "forced by changes to engine_version"
+                "message": "database must be replaced",
+                "reason": "destroy and then create replacement; forced by changes to engine_version"
             }])
         );
     }

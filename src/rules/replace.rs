@@ -1,4 +1,4 @@
-//! `replace`: a resource will be destroyed and re-created.
+//! `replace`: a resource must be replaced (destroyed and re-created).
 
 use crate::action::Action;
 use crate::finding::{Finding, Severity};
@@ -13,7 +13,7 @@ impl Rule for Replace {
     }
 
     fn description(&self) -> &'static str {
-        "A resource will be destroyed and re-created"
+        "A resource must be replaced (destroyed and re-created)"
     }
 
     fn default_severity(&self) -> Severity {
@@ -26,14 +26,14 @@ impl Rule for Replace {
             .filter_map(|rc| {
                 // Only real replaces. `ForgetReplace` keeps the old object,
                 // so nothing is destroyed.
-                let Action::Replace { create_first } = rc.change.action else {
+                if !matches!(rc.change.action, Action::Replace { .. }) {
                     return None;
-                };
+                }
                 Some(Finding {
                     rule_id: self.id(),
                     severity: self.default_severity(),
                     address: Some(rc.address.clone()),
-                    message: message(create_first, None),
+                    message: message(None),
                     reason: explain::replace_reason(rc),
                 })
             })
@@ -41,17 +41,14 @@ impl Rule for Replace {
     }
 }
 
-/// e.g. "will be destroyed and re-created", or "database will be destroyed
-/// and re-created" with a `noun`. Shared with `stateful_replace`.
-pub(super) fn message(create_first: bool, noun: Option<&str>) -> String {
-    let what = if create_first {
-        "will be replaced (new object created before the old one is destroyed)"
-    } else {
-        "will be destroyed and re-created"
-    };
+/// "must be replaced", or "database must be replaced" with a `noun`: the
+/// same words `terraform plan` uses. The order (destroy first or create
+/// first) is part of the reason; see `explain::replace_reason`.
+/// Shared with `stateful_replace`.
+pub(super) fn message(noun: Option<&str>) -> String {
     match noun {
-        Some(noun) => format!("{noun} {what}"),
-        None => what.to_string(),
+        Some(noun) => format!("{noun} must be replaced"),
+        None => "must be replaced".to_string(),
     }
 }
 
@@ -82,8 +79,10 @@ mod tests {
                 rule_id: "replace",
                 severity: Severity::Medium,
                 address: Some("aws_db_instance.main".to_string()),
-                message: "will be destroyed and re-created".to_string(),
-                reason: Some("forced by changes to engine".to_string()),
+                message: "must be replaced".to_string(),
+                reason: Some(
+                    "destroy and then create replacement; forced by changes to engine".to_string()
+                ),
             }]
         );
     }
@@ -91,9 +90,10 @@ mod tests {
     #[test]
     fn fires_on_create_first_replace() {
         let found = findings(json!(["create", "delete"]));
+        assert_eq!(found[0].message, "must be replaced");
         assert_eq!(
-            found[0].message,
-            "will be replaced (new object created before the old one is destroyed)"
+            found[0].reason.as_deref(),
+            Some("create replacement and then destroy; forced by changes to engine")
         );
     }
 

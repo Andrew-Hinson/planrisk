@@ -5,6 +5,6 @@ expression: render_rule_list(&all_rules())
 ID                SEVERITY  DESCRIPTION
 blast-radius      medium    Many resources change or are destroyed in one plan
 delete            medium    A resource will be destroyed
-replace           medium    A resource will be destroyed and re-created
+replace           medium    A resource must be replaced (destroyed and re-created)
 stateful-delete   critical  A resource that holds data (database, bucket, disk, ...) will be destroyed
-stateful-replace  critical  A resource that holds data (database, bucket, disk, ...) will be destroyed and re-created
+stateful-replace  critical  A resource that holds data (database, bucket, disk, ...) must be replaced

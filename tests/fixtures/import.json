@@ -1,0 +1,277 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.16.1",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "random_string.matching",
+          "mode": "managed",
+          "type": "random_string",
+          "name": "matching",
+          "provider_name": "registry.terraform.io/hashicorp/random",
+          "schema_version": 2,
+          "values": {
+            "id": "abc123",
+            "keepers": null,
+            "length": 6,
+            "lower": true,
+            "min_lower": 0,
+            "min_numeric": 0,
+            "min_special": 0,
+            "min_upper": 0,
+            "number": true,
+            "numeric": true,
+            "override_special": null,
+            "result": "abc123",
+            "special": true,
+            "upper": true
+          },
+          "sensitive_values": {}
+        },
+        {
+          "address": "random_string.mismatched",
+          "mode": "managed",
+          "type": "random_string",
+          "name": "mismatched",
+          "provider_name": "registry.terraform.io/hashicorp/random",
+          "schema_version": 2,
+          "values": {
+            "keepers": null,
+            "length": 12,
+            "lower": true,
+            "min_lower": 0,
+            "min_numeric": 0,
+            "min_special": 0,
+            "min_upper": 0,
+            "number": true,
+            "numeric": true,
+            "override_special": null,
+            "special": false,
+            "upper": true
+          },
+          "sensitive_values": {}
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "random_string.matching",
+      "mode": "managed",
+      "type": "random_string",
+      "name": "matching",
+      "provider_name": "registry.terraform.io/hashicorp/random",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "id": "abc123",
+          "keepers": null,
+          "length": 6,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "abc123",
+          "special": true,
+          "upper": true
+        },
+        "after": {
+          "id": "abc123",
+          "keepers": null,
+          "length": 6,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "abc123",
+          "special": true,
+          "upper": true
+        },
+        "after_unknown": {},
+        "before_sensitive": {},
+        "after_sensitive": {},
+        "importing": {
+          "id": "abc123"
+        }
+      }
+    },
+    {
+      "address": "random_string.mismatched",
+      "mode": "managed",
+      "type": "random_string",
+      "name": "mismatched",
+      "provider_name": "registry.terraform.io/hashicorp/random",
+      "change": {
+        "actions": [
+          "delete",
+          "create"
+        ],
+        "before": {
+          "id": "xyz789",
+          "keepers": null,
+          "length": 6,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "xyz789",
+          "special": true,
+          "upper": true
+        },
+        "after": {
+          "keepers": null,
+          "length": 12,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "special": false,
+          "upper": true
+        },
+        "after_unknown": {
+          "id": true,
+          "result": true
+        },
+        "before_sensitive": {},
+        "after_sensitive": {},
+        "replace_paths": [
+          [
+            "length"
+          ],
+          [
+            "special"
+          ]
+        ],
+        "importing": {
+          "id": "xyz789"
+        }
+      },
+      "action_reason": "replace_because_cannot_update"
+    }
+  ],
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.16.1",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "random_string.matching",
+            "mode": "managed",
+            "type": "random_string",
+            "name": "matching",
+            "provider_name": "registry.terraform.io/hashicorp/random",
+            "schema_version": 2,
+            "values": {
+              "id": "abc123",
+              "keepers": null,
+              "length": 6,
+              "lower": true,
+              "min_lower": 0,
+              "min_numeric": 0,
+              "min_special": 0,
+              "min_upper": 0,
+              "number": true,
+              "numeric": true,
+              "override_special": null,
+              "result": "abc123",
+              "special": true,
+              "upper": true
+            },
+            "sensitive_values": {}
+          },
+          {
+            "address": "random_string.mismatched",
+            "mode": "managed",
+            "type": "random_string",
+            "name": "mismatched",
+            "provider_name": "registry.terraform.io/hashicorp/random",
+            "schema_version": 2,
+            "values": {
+              "id": "xyz789",
+              "keepers": null,
+              "length": 6,
+              "lower": true,
+              "min_lower": 0,
+              "min_numeric": 0,
+              "min_special": 0,
+              "min_upper": 0,
+              "number": true,
+              "numeric": true,
+              "override_special": null,
+              "result": "xyz789",
+              "special": true,
+              "upper": true
+            },
+            "sensitive_values": {}
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "random": {
+        "name": "random",
+        "full_name": "registry.terraform.io/hashicorp/random",
+        "version_constraint": "~> 3.9"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "random_string.matching",
+          "mode": "managed",
+          "type": "random_string",
+          "name": "matching",
+          "provider_config_key": "random",
+          "expressions": {
+            "length": {
+              "constant_value": 6
+            }
+          },
+          "schema_version": 2
+        },
+        {
+          "address": "random_string.mismatched",
+          "mode": "managed",
+          "type": "random_string",
+          "name": "mismatched",
+          "provider_config_key": "random",
+          "expressions": {
+            "length": {
+              "constant_value": 12
+            },
+            "special": {
+              "constant_value": false
+            }
+          },
+          "schema_version": 2
+        }
+      ]
+    }
+  },
+  "timestamp": "2026-10-11T18:30:39Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}
