@@ -6,6 +6,7 @@
 
 use serde_json::Value;
 
+use crate::action::Action;
 use crate::plan::ResourceChange;
 
 /// Why Terraform plans to replace or delete this resource, if it says.
@@ -59,13 +60,34 @@ pub fn replace_paths(rc: &ResourceChange) -> Option<String> {
     Some(format!("forced by changes to {}", paths.join(", ")))
 }
 
-/// Both reasons for a replace, joined, e.g.
-/// "resource is tainted; forced by changes to engine_version".
+/// Everything that explains a replace, joined, e.g. "destroy and then create
+/// replacement; resource is tainted; forced by changes to engine_version".
+///
+/// In order: which comes first (Terraform's legend wording), the warning
+/// Terraform gives when an imported object is replaced, `action_reason`, and
+/// the attributes that forced it.
 pub fn replace_reason(rc: &ResourceChange) -> Option<String> {
-    let parts: Vec<String> = [action_reason(rc), replace_paths(rc)]
-        .into_iter()
-        .flatten() // drops the `None`s
-        .collect();
+    let order = match rc.change.action {
+        Action::Replace { create_first: true } => Some("create replacement and then destroy"),
+        Action::Replace {
+            create_first: false,
+        } => Some("destroy and then create replacement"),
+        _ => None,
+    };
+    let import_warning = rc
+        .change
+        .is_importing()
+        .then_some("this will destroy the imported resource");
+
+    let parts: Vec<String> = [
+        order.map(str::to_string),
+        import_warning.map(str::to_string),
+        action_reason(rc),
+        replace_paths(rc),
+    ]
+    .into_iter()
+    .flatten() // drops the `None`s
+    .collect();
     if parts.is_empty() {
         None
     } else {
@@ -198,13 +220,35 @@ mod tests {
         }));
         assert_eq!(
             replace_reason(&change).unwrap(),
-            "resource is tainted; forced by changes to engine_version, ebs_block_device[0].size"
+            "destroy and then create replacement; resource is tainted; \
+             forced by changes to engine_version, ebs_block_device[0].size"
         );
     }
 
     #[test]
-    fn no_reason_at_all() {
-        let change = rc(json!({"address": "a.b", "change": {"actions": ["delete", "create"]}}));
+    fn order_is_always_given() {
+        let change = rc(json!({"address": "a.b", "change": {"actions": ["create", "delete"]}}));
+        assert_eq!(
+            replace_reason(&change).as_deref(),
+            Some("create replacement and then destroy")
+        );
+    }
+
+    #[test]
+    fn replacing_an_import_warns_like_terraform() {
+        let change = rc(json!({
+            "address": "random_string.x",
+            "change": {"actions": ["delete", "create"], "importing": {"id": "abc"}}
+        }));
+        assert_eq!(
+            replace_reason(&change).as_deref(),
+            Some("destroy and then create replacement; this will destroy the imported resource")
+        );
+    }
+
+    #[test]
+    fn not_a_replace_has_no_order() {
+        let change = rc(json!({"address": "a.b", "change": {"actions": ["update"]}}));
         assert_eq!(replace_reason(&change), None);
     }
 }

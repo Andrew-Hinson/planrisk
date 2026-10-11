@@ -1,0 +1,13 @@
+---
+source: tests/snapshots.rs
+expression: render_text(&report(&path))
+---
+Terraform 1.16.1, plan format 1.2
+2 to create, 0 to update, 0 to replace, 0 to delete, 1 with an unknown action
+
+No findings.
+
+Changes:
+  create   aws_s3_bucket.assets
+  unknown ["teleport"] aws_security_group.web
+  create   module.queue.aws_sqs_queue.this

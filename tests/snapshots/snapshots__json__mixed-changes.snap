@@ -1,0 +1,59 @@
+---
+source: tests/snapshots.rs
+expression: json
+---
+{
+  "format_version": "1.0",
+  "planrisk_version": "[version]",
+  "terraform_version": "1.16.1",
+  "plan_format_version": "1.2",
+  "max_severity": "critical",
+  "counts": {
+    "create": 0,
+    "update": 2,
+    "replace": 2,
+    "delete": 3,
+    "forget": 1,
+    "read": 0,
+    "import": 0,
+    "move": 1,
+    "unknown": 0
+  },
+  "findings": [
+    {
+      "rule_id": "stateful-replace",
+      "severity": "critical",
+      "address": "aws_db_instance.main",
+      "message": "database must be replaced",
+      "reason": "destroy and then create replacement; forced by changes to availability_zone"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_s3_bucket.logs",
+      "message": "storage bucket will be destroyed",
+      "reason": "aws_s3_bucket.logs is not in configuration"
+    },
+    {
+      "rule_id": "replace",
+      "severity": "medium",
+      "address": "aws_security_group.web",
+      "message": "must be replaced",
+      "reason": "create replacement and then destroy; forced by changes to description"
+    },
+    {
+      "rule_id": "delete",
+      "severity": "medium",
+      "address": "aws_sqs_queue.unused",
+      "message": "will be destroyed",
+      "reason": "aws_sqs_queue.unused is not in configuration"
+    },
+    {
+      "rule_id": "delete",
+      "severity": "medium",
+      "address": "aws_sqs_queue.workers[2]",
+      "message": "will be destroyed",
+      "reason": "index [2] is out of range for count"
+    }
+  ]
+}

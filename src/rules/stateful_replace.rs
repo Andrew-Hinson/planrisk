@@ -1,4 +1,4 @@
-//! `stateful-replace`: a resource that holds data will be destroyed and re-created.
+//! `stateful-replace`: a resource that holds data must be replaced.
 //!
 //! A replace creates a new, empty object, so the data in the old one is lost
 //! unless it is restored from a backup. That holds even for create-first
@@ -17,7 +17,7 @@ impl Rule for StatefulReplace {
     }
 
     fn description(&self) -> &'static str {
-        "A resource that holds data (database, bucket, disk, ...) will be destroyed and re-created"
+        "A resource that holds data (database, bucket, disk, ...) must be replaced"
     }
 
     fn default_severity(&self) -> Severity {
@@ -32,15 +32,15 @@ impl Rule for StatefulReplace {
         plan.resource_changes
             .iter()
             .filter_map(|rc| {
-                let Action::Replace { create_first } = rc.change.action else {
+                if !matches!(rc.change.action, Action::Replace { .. }) {
                     return None;
-                };
+                }
                 let noun = stateful::noun(&rc.resource_type)?;
                 Some(Finding {
                     rule_id: self.id(),
                     severity: self.default_severity(),
                     address: Some(rc.address.clone()),
-                    message: replace::message(create_first, Some(noun)),
+                    message: replace::message(Some(noun)),
                     reason: explain::replace_reason(rc),
                 })
             })
@@ -71,19 +71,20 @@ mod tests {
     fn fires_on_both_replace_orders() {
         let found = findings("aws_db_instance", json!(["delete", "create"]));
         assert_eq!(found[0].severity, Severity::Critical);
-        assert_eq!(
-            found[0].message,
-            "database will be destroyed and re-created"
-        );
+        assert_eq!(found[0].message, "database must be replaced");
         assert_eq!(
             found[0].reason.as_deref(),
-            Some("forced by changes to engine_version")
+            Some("destroy and then create replacement; forced by changes to engine_version")
         );
 
         let found = findings("aws_db_instance", json!(["create", "delete"]));
-        assert_eq!(
-            found[0].message,
-            "database will be replaced (new object created before the old one is destroyed)"
+        assert_eq!(found[0].message, "database must be replaced");
+        assert!(
+            found[0]
+                .reason
+                .as_deref()
+                .unwrap()
+                .starts_with("create replacement and then destroy")
         );
     }
 

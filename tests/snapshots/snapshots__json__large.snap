@@ -1,0 +1,73 @@
+---
+source: tests/snapshots.rs
+expression: json
+---
+{
+  "format_version": "1.0",
+  "planrisk_version": "[version]",
+  "terraform_version": "1.16.1",
+  "plan_format_version": "1.2",
+  "max_severity": "critical",
+  "counts": {
+    "create": 0,
+    "update": 40,
+    "replace": 0,
+    "delete": 6,
+    "forget": 0,
+    "read": 0,
+    "import": 0,
+    "move": 0,
+    "unknown": 0
+  },
+  "findings": [
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.data[0]",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.data is not in configuration"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.data[1]",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.data is not in configuration"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.data[2]",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.data is not in configuration"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.data[3]",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.data is not in configuration"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.data[4]",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.data is not in configuration"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.data[5]",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.data is not in configuration"
+    },
+    {
+      "rule_id": "blast-radius",
+      "severity": "medium",
+      "address": null,
+      "message": "46 resources change, more than the threshold of 25; 6 to destroy, more than the threshold of 5",
+      "reason": null
+    }
+  ]
+}

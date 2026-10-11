@@ -1,0 +1,24 @@
+---
+source: tests/snapshots.rs
+expression: render_text(&report(&path))
+---
+Terraform 1.16.1, plan format 1.2
+0 to create, 2 to update, 2 to replace, 3 to delete, 1 to forget, 1 to move
+
+Findings:
+  critical  aws_db_instance.main: database must be replaced (destroy and then create replacement; forced by changes to availability_zone) [stateful-replace]
+  critical  aws_s3_bucket.logs: storage bucket will be destroyed (aws_s3_bucket.logs is not in configuration) [stateful-delete]
+  medium    aws_security_group.web: must be replaced (create replacement and then destroy; forced by changes to description) [replace]
+  medium    aws_sqs_queue.unused: will be destroyed (aws_sqs_queue.unused is not in configuration) [delete]
+  medium    aws_sqs_queue.workers[2]: will be destroyed (index [2] is out of range for count) [delete]
+
+Changes:
+  replace  aws_db_instance.main
+  delete   aws_s3_bucket.logs
+  replace  aws_security_group.web (create replacement and then destroy)
+  update   aws_sqs_queue.jobs
+  forget   aws_sqs_queue.legacy
+  move     aws_sqs_queue.new_name (moved from aws_sqs_queue.old_name)
+  delete   aws_sqs_queue.unused
+  delete   aws_sqs_queue.workers[2]
+  update   module.queue.aws_sqs_queue.this

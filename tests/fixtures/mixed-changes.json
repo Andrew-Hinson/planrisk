@@ -1,0 +1,1847 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.16.1",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_db_instance.main",
+          "mode": "managed",
+          "type": "aws_db_instance",
+          "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "allocated_storage": 20,
+            "allow_major_version_upgrade": null,
+            "apply_immediately": false,
+            "auto_minor_version_upgrade": true,
+            "availability_zone": "us-east-1b",
+            "blue_green_update": [],
+            "copy_tags_to_snapshot": false,
+            "custom_iam_instance_profile": null,
+            "customer_owned_ip_enabled": null,
+            "dedicated_log_volume": false,
+            "delete_automated_backups": true,
+            "deletion_protection": null,
+            "domain": null,
+            "domain_auth_secret_arn": null,
+            "domain_dns_ips": null,
+            "domain_iam_role_name": null,
+            "domain_ou": null,
+            "enabled_cloudwatch_logs_exports": null,
+            "engine": "postgres",
+            "final_snapshot_identifier": null,
+            "iam_database_authentication_enabled": null,
+            "identifier": "planrisk-fixture-db",
+            "instance_class": "db.t4g.micro",
+            "manage_master_user_password": null,
+            "max_allocated_storage": null,
+            "monitoring_interval": 0,
+            "password": "not-a-real-password",
+            "password_wo": null,
+            "password_wo_version": null,
+            "performance_insights_enabled": false,
+            "publicly_accessible": false,
+            "region": "us-east-1",
+            "replicate_source_db": null,
+            "restore_to_point_in_time": [],
+            "s3_import": [],
+            "skip_final_snapshot": true,
+            "storage_encrypted": null,
+            "tags": null,
+            "timeouts": null,
+            "upgrade_storage_config": null,
+            "username": "planrisk",
+            "warning_event_categories": null
+          },
+          "sensitive_values": {
+            "blue_green_update": [],
+            "listener_endpoint": [],
+            "master_user_secret": [],
+            "replicas": [],
+            "restore_to_point_in_time": [],
+            "s3_import": [],
+            "tags_all": {},
+            "vpc_security_group_ids": []
+          },
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "identifier": null,
+            "region": null
+          }
+        },
+        {
+          "address": "aws_security_group.web",
+          "mode": "managed",
+          "type": "aws_security_group",
+          "name": "web",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "description": "Web and API servers",
+            "name": "planrisk-fixture-web",
+            "region": "us-east-1",
+            "revoke_rules_on_delete": false,
+            "tags": null,
+            "timeouts": null
+          },
+          "sensitive_values": {
+            "egress": [],
+            "ingress": [],
+            "tags_all": {}
+          },
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "id": null,
+            "region": null
+          }
+        },
+        {
+          "address": "aws_sqs_queue.jobs",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "jobs",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "arn": "fake-arn",
+            "content_based_deduplication": false,
+            "deduplication_scope": "fake-deduplication_scope",
+            "delay_seconds": 0,
+            "fifo_queue": false,
+            "fifo_throughput_limit": "fake-fifo_throughput_limit",
+            "id": "fake-aws_sqs_queue.jobs",
+            "kms_data_key_reuse_period_seconds": 0,
+            "kms_master_key_id": null,
+            "max_message_size": 262144,
+            "message_retention_seconds": 345600,
+            "name": "planrisk-fixture-jobs",
+            "name_prefix": "fake-name_prefix",
+            "policy": "fake-policy",
+            "receive_wait_time_seconds": 0,
+            "redrive_allow_policy": "fake-redrive_allow_policy",
+            "redrive_policy": "fake-redrive_policy",
+            "region": "us-east-1",
+            "sqs_managed_sse_enabled": false,
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "url": "fake-url",
+            "visibility_timeout_seconds": 60
+          },
+          "sensitive_values": {
+            "tags_all": {}
+          },
+          "identity_schema_version": 1,
+          "identity": {
+            "url": null
+          }
+        },
+        {
+          "address": "aws_sqs_queue.new_name",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "new_name",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "arn": "fake-arn",
+            "content_based_deduplication": false,
+            "deduplication_scope": "fake-deduplication_scope",
+            "delay_seconds": 0,
+            "fifo_queue": false,
+            "fifo_throughput_limit": "fake-fifo_throughput_limit",
+            "id": "fake-aws_sqs_queue.old_name",
+            "kms_data_key_reuse_period_seconds": 0,
+            "kms_master_key_id": null,
+            "max_message_size": 262144,
+            "message_retention_seconds": 345600,
+            "name": "planrisk-fixture-moved",
+            "name_prefix": "fake-name_prefix",
+            "policy": "fake-policy",
+            "receive_wait_time_seconds": 0,
+            "redrive_allow_policy": "fake-redrive_allow_policy",
+            "redrive_policy": "fake-redrive_policy",
+            "region": "us-east-1",
+            "sqs_managed_sse_enabled": false,
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "url": "fake-url",
+            "visibility_timeout_seconds": 30
+          },
+          "sensitive_values": {
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_sqs_queue.workers[0]",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "workers",
+          "index": 0,
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "arn": "fake-arn",
+            "content_based_deduplication": false,
+            "deduplication_scope": "fake-deduplication_scope",
+            "delay_seconds": 0,
+            "fifo_queue": false,
+            "fifo_throughput_limit": "fake-fifo_throughput_limit",
+            "id": "fake-aws_sqs_queue.workers[0]",
+            "kms_data_key_reuse_period_seconds": 0,
+            "kms_master_key_id": null,
+            "max_message_size": 262144,
+            "message_retention_seconds": 345600,
+            "name": "planrisk-fixture-worker-0",
+            "name_prefix": "fake-name_prefix",
+            "policy": "fake-policy",
+            "receive_wait_time_seconds": 0,
+            "redrive_allow_policy": "fake-redrive_allow_policy",
+            "redrive_policy": "fake-redrive_policy",
+            "region": "us-east-1",
+            "sqs_managed_sse_enabled": false,
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "url": "fake-url",
+            "visibility_timeout_seconds": 30
+          },
+          "sensitive_values": {
+            "tags_all": {}
+          }
+        },
+        {
+          "address": "aws_sqs_queue.workers[1]",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "workers",
+          "index": 1,
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "arn": "fake-arn",
+            "content_based_deduplication": false,
+            "deduplication_scope": "fake-deduplication_scope",
+            "delay_seconds": 0,
+            "fifo_queue": false,
+            "fifo_throughput_limit": "fake-fifo_throughput_limit",
+            "id": "fake-aws_sqs_queue.workers[1]",
+            "kms_data_key_reuse_period_seconds": 0,
+            "kms_master_key_id": null,
+            "max_message_size": 262144,
+            "message_retention_seconds": 345600,
+            "name": "planrisk-fixture-worker-1",
+            "name_prefix": "fake-name_prefix",
+            "policy": "fake-policy",
+            "receive_wait_time_seconds": 0,
+            "redrive_allow_policy": "fake-redrive_allow_policy",
+            "redrive_policy": "fake-redrive_policy",
+            "region": "us-east-1",
+            "sqs_managed_sse_enabled": false,
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "url": "fake-url",
+            "visibility_timeout_seconds": 30
+          },
+          "sensitive_values": {
+            "tags_all": {}
+          }
+        }
+      ],
+      "child_modules": [
+        {
+          "resources": [
+            {
+              "address": "module.queue.aws_sqs_queue.this",
+              "mode": "managed",
+              "type": "aws_sqs_queue",
+              "name": "this",
+              "provider_name": "registry.terraform.io/hashicorp/aws",
+              "schema_version": 0,
+              "values": {
+                "arn": "fake-arn",
+                "content_based_deduplication": false,
+                "deduplication_scope": "fake-deduplication_scope",
+                "delay_seconds": 0,
+                "fifo_queue": false,
+                "fifo_throughput_limit": "fake-fifo_throughput_limit",
+                "id": "fake-module.queue.aws_sqs_queue.this",
+                "kms_data_key_reuse_period_seconds": 0,
+                "kms_master_key_id": null,
+                "max_message_size": 262144,
+                "message_retention_seconds": 345600,
+                "name": "planrisk-fixture-module-queue",
+                "name_prefix": "fake-name_prefix",
+                "policy": "fake-policy",
+                "receive_wait_time_seconds": 0,
+                "redrive_allow_policy": "fake-redrive_allow_policy",
+                "redrive_policy": "fake-redrive_policy",
+                "region": "us-east-1",
+                "sqs_managed_sse_enabled": false,
+                "tags": null,
+                "tags_all": {},
+                "timeouts": null,
+                "url": "fake-url",
+                "visibility_timeout_seconds": 60
+              },
+              "sensitive_values": {
+                "tags_all": {}
+              },
+              "identity_schema_version": 1,
+              "identity": {
+                "url": null
+              }
+            }
+          ],
+          "address": "module.queue"
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_db_instance.main",
+      "mode": "managed",
+      "type": "aws_db_instance",
+      "name": "main",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete",
+          "create"
+        ],
+        "before": {
+          "address": "fake-address",
+          "allocated_storage": 20,
+          "allow_major_version_upgrade": null,
+          "apply_immediately": false,
+          "arn": "fake-arn",
+          "auto_minor_version_upgrade": true,
+          "availability_zone": "us-east-1a",
+          "backup_retention_period": 0,
+          "backup_target": "fake-backup_target",
+          "backup_window": "fake-backup_window",
+          "blue_green_update": [],
+          "ca_cert_identifier": "fake-ca_cert_identifier",
+          "character_set_name": "fake-character_set_name",
+          "copy_tags_to_snapshot": false,
+          "custom_iam_instance_profile": null,
+          "customer_owned_ip_enabled": null,
+          "database_insights_mode": "fake-database_insights_mode",
+          "db_name": "fake-db_name",
+          "db_subnet_group_name": "fake-db_subnet_group_name",
+          "dedicated_log_volume": false,
+          "delete_automated_backups": true,
+          "deletion_protection": null,
+          "domain": null,
+          "domain_auth_secret_arn": null,
+          "domain_dns_ips": null,
+          "domain_fqdn": "fake-domain_fqdn",
+          "domain_iam_role_name": null,
+          "domain_ou": null,
+          "enabled_cloudwatch_logs_exports": null,
+          "endpoint": "fake-endpoint",
+          "engine": "postgres",
+          "engine_lifecycle_support": "fake-engine_lifecycle_support",
+          "engine_version": "fake-engine_version",
+          "engine_version_actual": "fake-engine_version_actual",
+          "final_snapshot_identifier": null,
+          "hosted_zone_id": "fake-hosted_zone_id",
+          "iam_database_authentication_enabled": null,
+          "id": "fake-aws_db_instance.main",
+          "identifier": "planrisk-fixture-db",
+          "identifier_prefix": "fake-identifier_prefix",
+          "instance_class": "db.t4g.micro",
+          "iops": 0,
+          "kms_key_id": "fake-kms_key_id",
+          "latest_restorable_time": "fake-latest_restorable_time",
+          "license_model": "fake-license_model",
+          "listener_endpoint": [],
+          "maintenance_window": "fake-maintenance_window",
+          "manage_master_user_password": null,
+          "master_user_secret": [],
+          "master_user_secret_kms_key_id": "fake-master_user_secret_kms_key_id",
+          "max_allocated_storage": null,
+          "monitoring_interval": 0,
+          "monitoring_role_arn": "fake-monitoring_role_arn",
+          "multi_az": false,
+          "nchar_character_set_name": "fake-nchar_character_set_name",
+          "network_type": "fake-network_type",
+          "option_group_name": "fake-option_group_name",
+          "parameter_group_name": "fake-parameter_group_name",
+          "password": "not-a-real-password",
+          "password_wo": null,
+          "password_wo_version": null,
+          "performance_insights_enabled": false,
+          "performance_insights_kms_key_id": "fake-performance_insights_kms_key_id",
+          "performance_insights_retention_period": 0,
+          "port": 0,
+          "publicly_accessible": false,
+          "region": "us-east-1",
+          "replica_mode": "fake-replica_mode",
+          "replicas": [],
+          "replicate_source_db": null,
+          "resource_id": "fake-resource_id",
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "skip_final_snapshot": true,
+          "snapshot_identifier": "fake-snapshot_identifier",
+          "status": "fake-status",
+          "storage_encrypted": null,
+          "storage_throughput": 0,
+          "storage_type": "fake-storage_type",
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "timezone": "fake-timezone",
+          "upgrade_rollout_order": "fake-upgrade_rollout_order",
+          "upgrade_storage_config": null,
+          "username": "planrisk",
+          "vpc_security_group_ids": [],
+          "warning_event_categories": null
+        },
+        "after": {
+          "allocated_storage": 20,
+          "allow_major_version_upgrade": null,
+          "apply_immediately": false,
+          "auto_minor_version_upgrade": true,
+          "availability_zone": "us-east-1b",
+          "blue_green_update": [],
+          "copy_tags_to_snapshot": false,
+          "custom_iam_instance_profile": null,
+          "customer_owned_ip_enabled": null,
+          "dedicated_log_volume": false,
+          "delete_automated_backups": true,
+          "deletion_protection": null,
+          "domain": null,
+          "domain_auth_secret_arn": null,
+          "domain_dns_ips": null,
+          "domain_iam_role_name": null,
+          "domain_ou": null,
+          "enabled_cloudwatch_logs_exports": null,
+          "engine": "postgres",
+          "final_snapshot_identifier": null,
+          "iam_database_authentication_enabled": null,
+          "identifier": "planrisk-fixture-db",
+          "instance_class": "db.t4g.micro",
+          "manage_master_user_password": null,
+          "max_allocated_storage": null,
+          "monitoring_interval": 0,
+          "password": "not-a-real-password",
+          "password_wo": null,
+          "password_wo_version": null,
+          "performance_insights_enabled": false,
+          "publicly_accessible": false,
+          "region": "us-east-1",
+          "replicate_source_db": null,
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "skip_final_snapshot": true,
+          "storage_encrypted": null,
+          "tags": null,
+          "timeouts": null,
+          "upgrade_storage_config": null,
+          "username": "planrisk",
+          "warning_event_categories": null
+        },
+        "after_unknown": {
+          "address": true,
+          "arn": true,
+          "backup_retention_period": true,
+          "backup_target": true,
+          "backup_window": true,
+          "blue_green_update": [],
+          "ca_cert_identifier": true,
+          "character_set_name": true,
+          "database_insights_mode": true,
+          "db_name": true,
+          "db_subnet_group_name": true,
+          "domain_fqdn": true,
+          "endpoint": true,
+          "engine_lifecycle_support": true,
+          "engine_version": true,
+          "engine_version_actual": true,
+          "hosted_zone_id": true,
+          "id": true,
+          "identifier_prefix": true,
+          "iops": true,
+          "kms_key_id": true,
+          "latest_restorable_time": true,
+          "license_model": true,
+          "listener_endpoint": true,
+          "maintenance_window": true,
+          "master_user_secret": true,
+          "master_user_secret_kms_key_id": true,
+          "monitoring_role_arn": true,
+          "multi_az": true,
+          "nchar_character_set_name": true,
+          "network_type": true,
+          "option_group_name": true,
+          "parameter_group_name": true,
+          "performance_insights_kms_key_id": true,
+          "performance_insights_retention_period": true,
+          "port": true,
+          "replica_mode": true,
+          "replicas": true,
+          "resource_id": true,
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "snapshot_identifier": true,
+          "status": true,
+          "storage_throughput": true,
+          "storage_type": true,
+          "tags_all": true,
+          "timezone": true,
+          "upgrade_rollout_order": true,
+          "vpc_security_group_ids": true
+        },
+        "before_sensitive": {
+          "blue_green_update": [],
+          "listener_endpoint": [],
+          "master_user_secret": [],
+          "password": true,
+          "password_wo": true,
+          "replicas": [],
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "tags_all": {},
+          "vpc_security_group_ids": []
+        },
+        "after_sensitive": {
+          "blue_green_update": [],
+          "listener_endpoint": [],
+          "master_user_secret": [],
+          "password": true,
+          "password_wo": true,
+          "replicas": [],
+          "restore_to_point_in_time": [],
+          "s3_import": [],
+          "tags_all": {},
+          "vpc_security_group_ids": []
+        },
+        "replace_paths": [
+          [
+            "availability_zone"
+          ]
+        ],
+        "after_identity": {
+          "account_id": null,
+          "identifier": null,
+          "region": null
+        }
+      },
+      "action_reason": "replace_because_cannot_update"
+    },
+    {
+      "address": "aws_s3_bucket.logs",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "logs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "before": {
+          "acceleration_status": "fake-acceleration_status",
+          "acl": "fake-acl",
+          "arn": "fake-arn",
+          "bucket": "planrisk-fixture-logs",
+          "bucket_domain_name": "fake-bucket_domain_name",
+          "bucket_namespace": "fake-bucket_namespace",
+          "bucket_prefix": "fake-bucket_prefix",
+          "bucket_region": "fake-bucket_region",
+          "bucket_regional_domain_name": "fake-bucket_regional_domain_name",
+          "cors_rule": [],
+          "force_destroy": false,
+          "grant": [],
+          "hosted_zone_id": "fake-hosted_zone_id",
+          "id": "fake-aws_s3_bucket.logs",
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "object_lock_enabled": false,
+          "policy": "fake-policy",
+          "region": "us-east-1",
+          "replication_configuration": [],
+          "request_payer": "fake-request_payer",
+          "server_side_encryption_configuration": [],
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "versioning": [],
+          "website": [],
+          "website_domain": "fake-website_domain",
+          "website_endpoint": "fake-website_endpoint"
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "cors_rule": [],
+          "grant": [],
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "replication_configuration": [],
+          "server_side_encryption_configuration": [],
+          "tags_all": {},
+          "versioning": [],
+          "website": []
+        },
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_no_resource_config"
+    },
+    {
+      "address": "aws_security_group.web",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "web",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create",
+          "delete"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "description": "Web servers",
+          "egress": [],
+          "id": "fake-aws_security_group.web",
+          "ingress": [],
+          "name": "planrisk-fixture-web",
+          "name_prefix": "fake-name_prefix",
+          "owner_id": "fake-owner_id",
+          "region": "us-east-1",
+          "revoke_rules_on_delete": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "vpc_id": "fake-vpc_id"
+        },
+        "after": {
+          "description": "Web and API servers",
+          "name": "planrisk-fixture-web",
+          "region": "us-east-1",
+          "revoke_rules_on_delete": false,
+          "tags": null,
+          "timeouts": null
+        },
+        "after_unknown": {
+          "arn": true,
+          "egress": true,
+          "id": true,
+          "ingress": true,
+          "name_prefix": true,
+          "owner_id": true,
+          "tags_all": true,
+          "vpc_id": true
+        },
+        "before_sensitive": {
+          "egress": [],
+          "ingress": [],
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "egress": [],
+          "ingress": [],
+          "tags_all": {}
+        },
+        "replace_paths": [
+          [
+            "description"
+          ]
+        ],
+        "after_identity": {
+          "account_id": null,
+          "id": null,
+          "region": null
+        }
+      },
+      "action_reason": "replace_because_cannot_update"
+    },
+    {
+      "address": "aws_sqs_queue.jobs",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "jobs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.jobs",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-jobs",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.jobs",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-jobs",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 60
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "tags_all": {}
+        },
+        "after_identity": {
+          "url": null
+        }
+      }
+    },
+    {
+      "address": "aws_sqs_queue.legacy",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "legacy",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "forget"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.legacy",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-legacy",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_no_resource_config"
+    },
+    {
+      "address": "aws_sqs_queue.new_name",
+      "previous_address": "aws_sqs_queue.old_name",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "new_name",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.old_name",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-moved",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.old_name",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-moved",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_sqs_queue.unused",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "unused",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.unused",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-unused",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_no_resource_config"
+    },
+    {
+      "address": "aws_sqs_queue.workers[0]",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "workers",
+      "index": 0,
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.workers[0]",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-worker-0",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.workers[0]",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-worker-0",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_sqs_queue.workers[1]",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "workers",
+      "index": 1,
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.workers[1]",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-worker-1",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.workers[1]",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-worker-1",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_sqs_queue.workers[2]",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "workers",
+      "index": 2,
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-aws_sqs_queue.workers[2]",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-worker-2",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_count_index"
+    },
+    {
+      "address": "module.queue.aws_sqs_queue.this",
+      "module_address": "module.queue",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "this",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-module.queue.aws_sqs_queue.this",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-module-queue",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 30
+        },
+        "after": {
+          "arn": "fake-arn",
+          "content_based_deduplication": false,
+          "deduplication_scope": "fake-deduplication_scope",
+          "delay_seconds": 0,
+          "fifo_queue": false,
+          "fifo_throughput_limit": "fake-fifo_throughput_limit",
+          "id": "fake-module.queue.aws_sqs_queue.this",
+          "kms_data_key_reuse_period_seconds": 0,
+          "kms_master_key_id": null,
+          "max_message_size": 262144,
+          "message_retention_seconds": 345600,
+          "name": "planrisk-fixture-module-queue",
+          "name_prefix": "fake-name_prefix",
+          "policy": "fake-policy",
+          "receive_wait_time_seconds": 0,
+          "redrive_allow_policy": "fake-redrive_allow_policy",
+          "redrive_policy": "fake-redrive_policy",
+          "region": "us-east-1",
+          "sqs_managed_sse_enabled": false,
+          "tags": null,
+          "tags_all": {},
+          "timeouts": null,
+          "url": "fake-url",
+          "visibility_timeout_seconds": 60
+        },
+        "after_unknown": {},
+        "before_sensitive": {
+          "tags_all": {}
+        },
+        "after_sensitive": {
+          "tags_all": {}
+        },
+        "after_identity": {
+          "url": null
+        }
+      }
+    }
+  ],
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.16.1",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "aws_db_instance.main",
+            "mode": "managed",
+            "type": "aws_db_instance",
+            "name": "main",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 2,
+            "values": {
+              "address": "fake-address",
+              "allocated_storage": 20,
+              "allow_major_version_upgrade": null,
+              "apply_immediately": false,
+              "arn": "fake-arn",
+              "auto_minor_version_upgrade": true,
+              "availability_zone": "us-east-1a",
+              "backup_retention_period": 0,
+              "backup_target": "fake-backup_target",
+              "backup_window": "fake-backup_window",
+              "blue_green_update": [],
+              "ca_cert_identifier": "fake-ca_cert_identifier",
+              "character_set_name": "fake-character_set_name",
+              "copy_tags_to_snapshot": false,
+              "custom_iam_instance_profile": null,
+              "customer_owned_ip_enabled": null,
+              "database_insights_mode": "fake-database_insights_mode",
+              "db_name": "fake-db_name",
+              "db_subnet_group_name": "fake-db_subnet_group_name",
+              "dedicated_log_volume": false,
+              "delete_automated_backups": true,
+              "deletion_protection": null,
+              "domain": null,
+              "domain_auth_secret_arn": null,
+              "domain_dns_ips": null,
+              "domain_fqdn": "fake-domain_fqdn",
+              "domain_iam_role_name": null,
+              "domain_ou": null,
+              "enabled_cloudwatch_logs_exports": null,
+              "endpoint": "fake-endpoint",
+              "engine": "postgres",
+              "engine_lifecycle_support": "fake-engine_lifecycle_support",
+              "engine_version": "fake-engine_version",
+              "engine_version_actual": "fake-engine_version_actual",
+              "final_snapshot_identifier": null,
+              "hosted_zone_id": "fake-hosted_zone_id",
+              "iam_database_authentication_enabled": null,
+              "id": "fake-aws_db_instance.main",
+              "identifier": "planrisk-fixture-db",
+              "identifier_prefix": "fake-identifier_prefix",
+              "instance_class": "db.t4g.micro",
+              "iops": 0,
+              "kms_key_id": "fake-kms_key_id",
+              "latest_restorable_time": "fake-latest_restorable_time",
+              "license_model": "fake-license_model",
+              "listener_endpoint": [],
+              "maintenance_window": "fake-maintenance_window",
+              "manage_master_user_password": null,
+              "master_user_secret": [],
+              "master_user_secret_kms_key_id": "fake-master_user_secret_kms_key_id",
+              "max_allocated_storage": null,
+              "monitoring_interval": 0,
+              "monitoring_role_arn": "fake-monitoring_role_arn",
+              "multi_az": false,
+              "nchar_character_set_name": "fake-nchar_character_set_name",
+              "network_type": "fake-network_type",
+              "option_group_name": "fake-option_group_name",
+              "parameter_group_name": "fake-parameter_group_name",
+              "password": "not-a-real-password",
+              "password_wo": null,
+              "password_wo_version": null,
+              "performance_insights_enabled": false,
+              "performance_insights_kms_key_id": "fake-performance_insights_kms_key_id",
+              "performance_insights_retention_period": 0,
+              "port": 0,
+              "publicly_accessible": false,
+              "region": "us-east-1",
+              "replica_mode": "fake-replica_mode",
+              "replicas": [],
+              "replicate_source_db": null,
+              "resource_id": "fake-resource_id",
+              "restore_to_point_in_time": [],
+              "s3_import": [],
+              "skip_final_snapshot": true,
+              "snapshot_identifier": "fake-snapshot_identifier",
+              "status": "fake-status",
+              "storage_encrypted": null,
+              "storage_throughput": 0,
+              "storage_type": "fake-storage_type",
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "timezone": "fake-timezone",
+              "upgrade_rollout_order": "fake-upgrade_rollout_order",
+              "upgrade_storage_config": null,
+              "username": "planrisk",
+              "vpc_security_group_ids": [],
+              "warning_event_categories": null
+            },
+            "sensitive_values": {
+              "blue_green_update": [],
+              "listener_endpoint": [],
+              "master_user_secret": [],
+              "password": true,
+              "password_wo": true,
+              "replicas": [],
+              "restore_to_point_in_time": [],
+              "s3_import": [],
+              "tags_all": {},
+              "vpc_security_group_ids": []
+            }
+          },
+          {
+            "address": "aws_s3_bucket.logs",
+            "mode": "managed",
+            "type": "aws_s3_bucket",
+            "name": "logs",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "acceleration_status": "fake-acceleration_status",
+              "acl": "fake-acl",
+              "arn": "fake-arn",
+              "bucket": "planrisk-fixture-logs",
+              "bucket_domain_name": "fake-bucket_domain_name",
+              "bucket_namespace": "fake-bucket_namespace",
+              "bucket_prefix": "fake-bucket_prefix",
+              "bucket_region": "fake-bucket_region",
+              "bucket_regional_domain_name": "fake-bucket_regional_domain_name",
+              "cors_rule": [],
+              "force_destroy": false,
+              "grant": [],
+              "hosted_zone_id": "fake-hosted_zone_id",
+              "id": "fake-aws_s3_bucket.logs",
+              "lifecycle_rule": [],
+              "logging": [],
+              "object_lock_configuration": [],
+              "object_lock_enabled": false,
+              "policy": "fake-policy",
+              "region": "us-east-1",
+              "replication_configuration": [],
+              "request_payer": "fake-request_payer",
+              "server_side_encryption_configuration": [],
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "versioning": [],
+              "website": [],
+              "website_domain": "fake-website_domain",
+              "website_endpoint": "fake-website_endpoint"
+            },
+            "sensitive_values": {
+              "cors_rule": [],
+              "grant": [],
+              "lifecycle_rule": [],
+              "logging": [],
+              "object_lock_configuration": [],
+              "replication_configuration": [],
+              "server_side_encryption_configuration": [],
+              "tags_all": {},
+              "versioning": [],
+              "website": []
+            }
+          },
+          {
+            "address": "aws_security_group.web",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "web",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 1,
+            "values": {
+              "arn": "fake-arn",
+              "description": "Web servers",
+              "egress": [],
+              "id": "fake-aws_security_group.web",
+              "ingress": [],
+              "name": "planrisk-fixture-web",
+              "name_prefix": "fake-name_prefix",
+              "owner_id": "fake-owner_id",
+              "region": "us-east-1",
+              "revoke_rules_on_delete": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "vpc_id": "fake-vpc_id"
+            },
+            "sensitive_values": {
+              "egress": [],
+              "ingress": [],
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.jobs",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "jobs",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.jobs",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-jobs",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.legacy",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "legacy",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.legacy",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-legacy",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.new_name",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "new_name",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.old_name",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-moved",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.unused",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "unused",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.unused",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-unused",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.workers[0]",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "workers",
+            "index": 0,
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.workers[0]",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-worker-0",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.workers[1]",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "workers",
+            "index": 1,
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.workers[1]",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-worker-1",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          },
+          {
+            "address": "aws_sqs_queue.workers[2]",
+            "mode": "managed",
+            "type": "aws_sqs_queue",
+            "name": "workers",
+            "index": 2,
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "arn": "fake-arn",
+              "content_based_deduplication": false,
+              "deduplication_scope": "fake-deduplication_scope",
+              "delay_seconds": 0,
+              "fifo_queue": false,
+              "fifo_throughput_limit": "fake-fifo_throughput_limit",
+              "id": "fake-aws_sqs_queue.workers[2]",
+              "kms_data_key_reuse_period_seconds": 0,
+              "kms_master_key_id": null,
+              "max_message_size": 262144,
+              "message_retention_seconds": 345600,
+              "name": "planrisk-fixture-worker-2",
+              "name_prefix": "fake-name_prefix",
+              "policy": "fake-policy",
+              "receive_wait_time_seconds": 0,
+              "redrive_allow_policy": "fake-redrive_allow_policy",
+              "redrive_policy": "fake-redrive_policy",
+              "region": "us-east-1",
+              "sqs_managed_sse_enabled": false,
+              "tags": null,
+              "tags_all": {},
+              "timeouts": null,
+              "url": "fake-url",
+              "visibility_timeout_seconds": 30
+            },
+            "sensitive_values": {
+              "tags_all": {}
+            }
+          }
+        ],
+        "child_modules": [
+          {
+            "resources": [
+              {
+                "address": "module.queue.aws_sqs_queue.this",
+                "mode": "managed",
+                "type": "aws_sqs_queue",
+                "name": "this",
+                "provider_name": "registry.terraform.io/hashicorp/aws",
+                "schema_version": 0,
+                "values": {
+                  "arn": "fake-arn",
+                  "content_based_deduplication": false,
+                  "deduplication_scope": "fake-deduplication_scope",
+                  "delay_seconds": 0,
+                  "fifo_queue": false,
+                  "fifo_throughput_limit": "fake-fifo_throughput_limit",
+                  "id": "fake-module.queue.aws_sqs_queue.this",
+                  "kms_data_key_reuse_period_seconds": 0,
+                  "kms_master_key_id": null,
+                  "max_message_size": 262144,
+                  "message_retention_seconds": 345600,
+                  "name": "planrisk-fixture-module-queue",
+                  "name_prefix": "fake-name_prefix",
+                  "policy": "fake-policy",
+                  "receive_wait_time_seconds": 0,
+                  "redrive_allow_policy": "fake-redrive_allow_policy",
+                  "redrive_policy": "fake-redrive_policy",
+                  "region": "us-east-1",
+                  "sqs_managed_sse_enabled": false,
+                  "tags": null,
+                  "tags_all": {},
+                  "timeouts": null,
+                  "url": "fake-url",
+                  "visibility_timeout_seconds": 30
+                },
+                "sensitive_values": {
+                  "tags_all": {}
+                }
+              }
+            ],
+            "address": "module.queue"
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "full_name": "registry.terraform.io/hashicorp/aws",
+        "version_constraint": "~> 6.68",
+        "expressions": {
+          "region": {
+            "constant_value": "us-east-1"
+          },
+          "skip_credentials_validation": {
+            "constant_value": true
+          },
+          "skip_metadata_api_check": {
+            "constant_value": true
+          },
+          "skip_requesting_account_id": {
+            "constant_value": true
+          }
+        }
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_db_instance.main",
+          "mode": "managed",
+          "type": "aws_db_instance",
+          "name": "main",
+          "provider_config_key": "aws",
+          "expressions": {
+            "allocated_storage": {
+              "constant_value": 20
+            },
+            "availability_zone": {
+              "constant_value": "us-east-1b"
+            },
+            "engine": {
+              "constant_value": "postgres"
+            },
+            "identifier": {
+              "constant_value": "planrisk-fixture-db"
+            },
+            "instance_class": {
+              "constant_value": "db.t4g.micro"
+            },
+            "password": {
+              "constant_value": "not-a-real-password"
+            },
+            "skip_final_snapshot": {
+              "constant_value": true
+            },
+            "username": {
+              "constant_value": "planrisk"
+            }
+          },
+          "schema_version": 2
+        },
+        {
+          "address": "aws_security_group.web",
+          "mode": "managed",
+          "type": "aws_security_group",
+          "name": "web",
+          "provider_config_key": "aws",
+          "expressions": {
+            "description": {
+              "constant_value": "Web and API servers"
+            },
+            "name": {
+              "constant_value": "planrisk-fixture-web"
+            }
+          },
+          "schema_version": 1
+        },
+        {
+          "address": "aws_sqs_queue.jobs",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "jobs",
+          "provider_config_key": "aws",
+          "expressions": {
+            "name": {
+              "constant_value": "planrisk-fixture-jobs"
+            },
+            "visibility_timeout_seconds": {
+              "constant_value": 60
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_sqs_queue.new_name",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "new_name",
+          "provider_config_key": "aws",
+          "expressions": {
+            "name": {
+              "constant_value": "planrisk-fixture-moved"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_sqs_queue.workers",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "workers",
+          "provider_config_key": "aws",
+          "expressions": {
+            "name": {
+              "references": [
+                "count.index"
+              ]
+            }
+          },
+          "schema_version": 0,
+          "count_expression": {
+            "constant_value": 2
+          }
+        }
+      ],
+      "module_calls": {
+        "queue": {
+          "source": "./modules/queue",
+          "expressions": {
+            "name": {
+              "constant_value": "planrisk-fixture-module-queue"
+            },
+            "visibility_timeout": {
+              "constant_value": 60
+            }
+          },
+          "module": {
+            "resources": [
+              {
+                "address": "aws_sqs_queue.this",
+                "mode": "managed",
+                "type": "aws_sqs_queue",
+                "name": "this",
+                "provider_config_key": "aws",
+                "expressions": {
+                  "name": {
+                    "references": [
+                      "var.name"
+                    ]
+                  },
+                  "visibility_timeout_seconds": {
+                    "references": [
+                      "var.visibility_timeout"
+                    ]
+                  }
+                },
+                "schema_version": 0
+              }
+            ],
+            "variables": {
+              "name": {},
+              "visibility_timeout": {}
+            }
+          }
+        }
+      }
+    }
+  },
+  "timestamp": "2026-10-11T18:29:19Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}

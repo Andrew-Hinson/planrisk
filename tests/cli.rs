@@ -105,8 +105,9 @@ fn unknown_format_exits_1() {
         .code(1);
 }
 
-/// A plan that replaces a database: one critical finding (stateful-replace).
-/// Replace with the stateful-replace fixture once it exists (issue #18).
+/// A plan with exactly one finding, a critical stateful-replace. Inline so
+/// each threshold's expected count is obvious; the real-plan check is
+/// `fail_on_critical_fails_the_mixed_changes_fixture`.
 const DB_REPLACE: &str = r#"{
     "format_version": "1.2", "planned_values": {},
     "resource_changes": [{
@@ -215,4 +216,23 @@ fn plan_is_still_required_without_a_subcommand() {
         .assert()
         .code(1)
         .stderr(contains("<PLAN_JSON>"));
+}
+
+#[test]
+fn fail_on_critical_fails_the_mixed_changes_fixture() {
+    // A real Terraform plan with a database replace and a bucket delete.
+    cargo_bin_cmd!("planrisk")
+        .args(["tests/fixtures/mixed-changes.json", "--fail-on", "critical"])
+        .assert()
+        .code(2)
+        .stderr(contains("2 findings at or above --fail-on critical"));
+}
+
+#[test]
+fn format_version_2_fixture_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .arg("tests/fixtures/invalid/format-version-2.json")
+        .assert()
+        .code(1)
+        .stderr(contains("plan format version 2.0"));
 }

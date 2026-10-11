@@ -150,7 +150,7 @@ pub fn render_text(report: &Report) -> String {
 }
 
 /// One line for a resource change, e.g.
-/// `replace  aws_db_instance.main (create before destroy)`.
+/// `replace  aws_db_instance.main (create replacement and then destroy)`.
 /// Returns `None` for no-ops that aren't moves or imports: nothing happens to them.
 /// One line for a finding, e.g.
 /// `critical  aws_db_instance.main: will be replaced (engine_version changed) [stateful-replace]`.
@@ -179,12 +179,12 @@ fn describe(rc: &ResourceChange) -> Option<String> {
         Action::Forget => Some("forget".to_string()),
         Action::Replace { create_first } => {
             if *create_first {
-                notes.push("create before destroy".to_string());
+                notes.push("create replacement and then destroy".to_string());
             }
             Some("replace".to_string())
         }
         Action::ForgetReplace { .. } => {
-            notes.push("old object forgotten, not destroyed".to_string());
+            notes.push("existing object will not be destroyed".to_string());
             Some("replace".to_string())
         }
         Action::Unknown(list) => Some(format!("unknown {list:?}")),
@@ -310,8 +310,8 @@ Changes:
   create   a.create
   update   a.update
   replace  a.replace
-  replace  a.cbd (create before destroy)
-  replace  a.forgetrep (old object forgotten, not destroyed)
+  replace  a.cbd (create replacement and then destroy)
+  replace  a.forgetrep (existing object will not be destroyed)
   delete   a.delete
   delete   a.deposed (deposed object abc123)
   forget   a.forget
