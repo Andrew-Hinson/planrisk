@@ -5,6 +5,10 @@
 //! 2. Declare the module below with `mod <rule_name>;`.
 //! 3. Add it to [`all_rules`]. That is the only place rules are registered.
 
+mod delete;
+pub mod explain;
+mod replace;
+
 use crate::finding::{Finding, Severity};
 use crate::plan::Plan;
 
@@ -34,6 +38,5 @@ pub trait Rule {
 /// `Box<dyn Rule>` lets one list hold different rule types: each `Box` points
 /// to some type that implements `Rule`, and calls are dispatched at runtime.
 pub fn all_rules() -> Vec<Box<dyn Rule>> {
-    // Rules are added from issue #10 onwards.
-    Vec::new()
+    vec![Box::new(delete::Delete), Box::new(replace::Replace)]
 }

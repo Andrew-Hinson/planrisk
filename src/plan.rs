@@ -71,6 +71,11 @@ pub struct ResourceChange {
     #[serde(default)]
     pub name: String,
 
+    /// Instance key for resources using `count` (a number) or `for_each`
+    /// (a string). `Null` for resources using neither.
+    #[serde(default)]
+    pub index: Value,
+
     /// Provider that manages the resource, e.g. `registry.terraform.io/hashicorp/aws`.
     #[serde(default)]
     pub provider_name: String,
