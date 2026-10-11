@@ -8,8 +8,9 @@ use serde::Serialize;
 ///
 /// Deriving `PartialOrd` and `Ord` orders the variants as they are written,
 /// so `Severity::Low < Severity::Critical`. `--fail-on` and sorting rely on that.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
-// Serialized as "low", "medium", ... in JSON output.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, clap::ValueEnum)]
+// Serialized as "low", "medium", ... in JSON output. `ValueEnum` lets the
+// CLI accept the same lowercase names, e.g. `--fail-on high`.
 #[serde(rename_all = "lowercase")]
 pub enum Severity {
     Low,

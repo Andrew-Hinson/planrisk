@@ -1,14 +1,32 @@
 use std::process::ExitCode;
 
 use clap::{Parser, ValueEnum};
+use planrisk::finding::Severity;
 use planrisk::json::render_json;
 use planrisk::report::Report;
 use planrisk::rules::all_rules;
 use planrisk::summary::render_text;
 
+/// Exit codes, in one place. Also listed in `--help` (see `EXIT_CODES_HELP`)
+/// and PLAN.md §9. Changing them breaks CI pipelines, so treat them as fixed.
+mod exit_code {
+    /// Ran fine, and no finding is at or above `--fail-on` (or it wasn't set).
+    pub const OK: u8 = 0;
+    /// Something went wrong: bad input, unreadable file, bad arguments.
+    pub const ERROR: u8 = 1;
+    /// Ran fine, but at least one finding is at or above `--fail-on`.
+    pub const FAIL_ON: u8 = 2;
+}
+
+const EXIT_CODES_HELP: &str = "\
+Exit codes:
+  0  no finding at or above --fail-on (or --fail-on not set)
+  1  error: bad input, unreadable file or bad arguments
+  2  at least one finding at or above --fail-on";
+
 /// Reads a Terraform plan and flags risky changes.
 #[derive(Parser)]
-#[command(version, about)]
+#[command(version, about, after_help = EXIT_CODES_HELP)]
 struct Cli {
     /// Plan JSON from `terraform show -json plan.out`, or `-` to read stdin.
     #[arg(value_name = "PLAN_JSON")]
@@ -17,6 +35,11 @@ struct Cli {
     /// Output format.
     #[arg(long, value_enum, default_value_t = Format::Terminal)]
     format: Format,
+
+    /// Exit with code 2 if any finding is this severe or worse.
+    /// Without it, findings never fail the run.
+    #[arg(long, value_enum, value_name = "SEVERITY")]
+    fail_on: Option<Severity>,
 }
 
 /// Output formats for `--format`. Markdown comes in M4 (PLAN.md §11).
@@ -24,42 +47,40 @@ struct Cli {
 enum Format {
     /// Human-readable summary.
     Terminal,
-    /// Machine-readable JSON; see `src/json.rs` for the format.
+    /// Machine-readable JSON, for scripts and other tools.
+    // The format is documented in src/json.rs (and the README, issue #30).
     Json,
 }
 
-/// Exit code for any tool error: bad input, unreadable file, bad arguments.
-/// Exit codes are listed in PLAN.md §9; 2 is reserved for `--fail-on`.
-const EXIT_ERROR: u8 = 1;
-
 fn main() -> ExitCode {
     // `try_parse` instead of `parse`: on bad arguments clap would exit with
-    // code 2, which planrisk reserves for "risk threshold exceeded".
+    // code 2, which planrisk reserves for `--fail-on`.
     let cli = match Cli::try_parse() {
         Ok(cli) => cli,
         Err(err) => {
             // Prints usage errors to stderr, and --help/--version to stdout.
             let _ = err.print();
-            return if err.use_stderr() {
-                ExitCode::from(EXIT_ERROR)
+            return ExitCode::from(if err.use_stderr() {
+                exit_code::ERROR
             } else {
-                ExitCode::SUCCESS
-            };
+                exit_code::OK
+            });
         }
     };
 
     match run(&cli) {
-        Ok(()) => ExitCode::SUCCESS,
+        Ok(code) => ExitCode::from(code),
         Err(err) => {
             // `{:#}` prints the error and its causes on one line,
             // e.g. "could not read plan file `x`: No such file or directory".
             eprintln!("error: {err:#}");
-            ExitCode::from(EXIT_ERROR)
+            ExitCode::from(exit_code::ERROR)
         }
     }
 }
 
-fn run(cli: &Cli) -> anyhow::Result<()> {
+/// Runs planrisk and returns the exit code for a successful run.
+fn run(cli: &Cli) -> anyhow::Result<u8> {
     let plan = planrisk::input::read_plan(&cli.plan)?;
     let report = Report::build(plan, &all_rules());
     let output = match cli.format {
@@ -67,5 +88,19 @@ fn run(cli: &Cli) -> anyhow::Result<()> {
         Format::Json => render_json(&report),
     };
     print!("{output}");
-    Ok(())
+
+    if let Some(threshold) = cli.fail_on {
+        let failing = report
+            .findings
+            .iter()
+            .filter(|finding| finding.severity >= threshold)
+            .count();
+        if failing > 0 {
+            // On stderr, so it shows in CI logs without mixing into JSON on stdout.
+            let s = if failing == 1 { "" } else { "s" };
+            eprintln!("planrisk: {failing} finding{s} at or above --fail-on {threshold}");
+            return Ok(exit_code::FAIL_ON);
+        }
+    }
+    Ok(exit_code::OK)
 }
