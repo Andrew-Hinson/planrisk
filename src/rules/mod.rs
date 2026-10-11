@@ -5,6 +5,7 @@
 //! 2. Declare the module below with `mod <rule_name>;`.
 //! 3. Add it to [`all_rules`]. That is the only place rules are registered.
 
+mod blast_radius;
 mod delete;
 pub mod explain;
 mod replace;
@@ -57,5 +58,6 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(stateful_replace::StatefulReplace),
         Box::new(delete::Delete),
         Box::new(replace::Replace),
+        Box::new(blast_radius::BlastRadius::default()),
     ]
 }
