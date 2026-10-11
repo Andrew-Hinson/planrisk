@@ -6,13 +6,18 @@
 
 use std::fmt::Write;
 
+use serde::Serialize;
+
 use crate::action::Action;
 use crate::finding::Finding;
 use crate::plan::ResourceChange;
 use crate::report::Report;
 
 /// How many resources each kind of change affects.
-#[derive(Debug, Default, PartialEq, Eq)]
+///
+/// Serialized as-is in JSON output, so renaming a field is a breaking
+/// change to the JSON format (see `json.rs`).
+#[derive(Debug, Default, PartialEq, Eq, Serialize)]
 pub struct Counts {
     pub create: usize,
     pub update: usize,
@@ -22,6 +27,8 @@ pub struct Counts {
     pub forget: usize,
     pub read: usize,
     pub import: usize,
+    /// Named `move` in JSON; `move` is a Rust keyword, so it can't be the field name.
+    #[serde(rename = "move")]
     pub moved: usize,
     pub unknown: usize,
 }

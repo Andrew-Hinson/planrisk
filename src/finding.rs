@@ -2,11 +2,15 @@
 
 use std::fmt;
 
+use serde::Serialize;
+
 /// How serious a finding is, from least to most.
 ///
 /// Deriving `PartialOrd` and `Ord` orders the variants as they are written,
 /// so `Severity::Low < Severity::Critical`. `--fail-on` and sorting rely on that.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+// Serialized as "low", "medium", ... in JSON output.
+#[serde(rename_all = "lowercase")]
 pub enum Severity {
     Low,
     Medium,
@@ -28,7 +32,10 @@ impl fmt::Display for Severity {
 }
 
 /// One risk a rule found.
-#[derive(Debug, Clone, PartialEq, Eq)]
+///
+/// Serialized as-is in JSON output, so renaming a field is a breaking
+/// change to the JSON format (see `json.rs`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Finding {
     /// The rule that found it, e.g. `"stateful-replace"`.
     pub rule_id: &'static str,

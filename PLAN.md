@@ -282,7 +282,8 @@ loudly instead of being silently ignored. Use `#[serde(deny_unknown_fields)]`.
 All three formats are built from the same `Report` struct (findings, counts
 per action, plan metadata), so they cannot disagree.
 
-- **JSON:** a stable schema with a `schema_version` field. Built first,
+- **JSON:** a stable format with a `format_version` field that follows
+  Terraform's rules (minor versions add fields, major versions break). Built first,
   because it is the easiest to snapshot test.
 - **Terminal:** counts line, then findings grouped by severity, highest
   first, colored by severity. Respects `NO_COLOR` and `--no-color`.

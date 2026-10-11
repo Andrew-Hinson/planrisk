@@ -7,6 +7,7 @@
 pub mod action;
 pub mod finding;
 pub mod input;
+pub mod json;
 pub mod plan;
 pub mod report;
 pub mod rules;

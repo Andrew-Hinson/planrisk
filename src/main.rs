@@ -1,6 +1,7 @@
 use std::process::ExitCode;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
+use planrisk::json::render_json;
 use planrisk::report::Report;
 use planrisk::rules::all_rules;
 use planrisk::summary::render_text;
@@ -12,6 +13,19 @@ struct Cli {
     /// Plan JSON from `terraform show -json plan.out`, or `-` to read stdin.
     #[arg(value_name = "PLAN_JSON")]
     plan: String,
+
+    /// Output format.
+    #[arg(long, value_enum, default_value_t = Format::Terminal)]
+    format: Format,
+}
+
+/// Output formats for `--format`. Markdown comes in M4 (PLAN.md §11).
+#[derive(Clone, Copy, ValueEnum)]
+enum Format {
+    /// Human-readable summary.
+    Terminal,
+    /// Machine-readable JSON; see `src/json.rs` for the format.
+    Json,
 }
 
 /// Exit code for any tool error: bad input, unreadable file, bad arguments.
@@ -48,6 +62,10 @@ fn main() -> ExitCode {
 fn run(cli: &Cli) -> anyhow::Result<()> {
     let plan = planrisk::input::read_plan(&cli.plan)?;
     let report = Report::build(plan, &all_rules());
-    print!("{}", render_text(&report));
+    let output = match cli.format {
+        Format::Terminal => render_text(&report),
+        Format::Json => render_json(&report),
+    };
+    print!("{output}");
     Ok(())
 }
