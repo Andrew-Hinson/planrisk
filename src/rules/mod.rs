@@ -61,3 +61,31 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(blast_radius::BlastRadius::default()),
     ]
 }
+
+/// The table printed by `planrisk rules`: one line per rule, sorted by ID.
+///
+/// Built from the rules themselves, so it can't fall out of date when a rule
+/// is added.
+pub fn render_rule_list(rules: &[Box<dyn Rule>]) -> String {
+    let mut rules: Vec<&dyn Rule> = rules.iter().map(|rule| rule.as_ref()).collect();
+    rules.sort_by_key(|rule| rule.id());
+
+    // Pad the ID column to the longest ID, so the columns line up.
+    let id_width = rules
+        .iter()
+        .map(|rule| rule.id().len())
+        .max()
+        .unwrap_or(0)
+        .max("ID".len());
+
+    let mut out = format!("{:<id_width$}  {:<8}  DESCRIPTION\n", "ID", "SEVERITY");
+    for rule in rules {
+        out.push_str(&format!(
+            "{:<id_width$}  {:<8}  {}\n",
+            rule.id(),
+            rule.default_severity(),
+            rule.description()
+        ));
+    }
+    out
+}
