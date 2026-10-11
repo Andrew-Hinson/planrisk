@@ -12,6 +12,7 @@ use planrisk::input::read_plan;
 use planrisk::json::render_json;
 use planrisk::report::Report;
 use planrisk::rules::{all_rules, render_rule_list};
+use planrisk::summary::render_text;
 
 /// Paths of every fixture, sorted so test output is stable.
 fn fixtures() -> Vec<std::path::PathBuf> {
@@ -44,6 +45,16 @@ fn json_output() {
             r#""planrisk_version": "[version]""#,
         );
         insta::assert_snapshot!(format!("json__{}", name(&path)), json);
+    }
+}
+
+#[test]
+fn terminal_output() {
+    for path in fixtures() {
+        insta::assert_snapshot!(
+            format!("terminal__{}", name(&path)),
+            render_text(&report(&path))
+        );
     }
 }
 

@@ -4,3 +4,7 @@
 *.tfstate
 *.tfstate.backup
 plan.out
+
+# insta: snapshots waiting for review
+*.snap.new
+*.pending-snap
