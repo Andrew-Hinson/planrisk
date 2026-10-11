@@ -1,10 +1,10 @@
 use std::process::ExitCode;
 
-use clap::{Parser, ValueEnum};
+use clap::{Parser, Subcommand, ValueEnum};
 use planrisk::finding::Severity;
 use planrisk::json::render_json;
 use planrisk::report::Report;
-use planrisk::rules::all_rules;
+use planrisk::rules::{all_rules, render_rule_list};
 use planrisk::summary::render_text;
 
 /// Exit codes, in one place. Also listed in `--help` (see `EXIT_CODES_HELP`)
@@ -27,10 +27,17 @@ Exit codes:
 /// Reads a Terraform plan and flags risky changes.
 #[derive(Parser)]
 #[command(version, about, after_help = EXIT_CODES_HELP)]
+// PLAN_JSON is required, except when a subcommand like `rules` is given; and
+// subcommands don't take the plan options. A file named `rules` can still be
+// checked as `./rules`.
+#[command(subcommand_negates_reqs = true, args_conflicts_with_subcommands = true)]
 struct Cli {
+    #[command(subcommand)]
+    command: Option<Command>,
+
     /// Plan JSON from `terraform show -json plan.out`, or `-` to read stdin.
-    #[arg(value_name = "PLAN_JSON")]
-    plan: String,
+    #[arg(value_name = "PLAN_JSON", required = true)]
+    plan: Option<String>,
 
     /// Output format.
     #[arg(long, value_enum, default_value_t = Format::Terminal)]
@@ -40,6 +47,12 @@ struct Cli {
     /// Without it, findings never fail the run.
     #[arg(long, value_enum, value_name = "SEVERITY")]
     fail_on: Option<Severity>,
+}
+
+#[derive(Subcommand)]
+enum Command {
+    /// List every rule with its default severity.
+    Rules,
 }
 
 /// Output formats for `--format`. Markdown comes in M4 (PLAN.md §11).
@@ -81,7 +94,14 @@ fn main() -> ExitCode {
 
 /// Runs planrisk and returns the exit code for a successful run.
 fn run(cli: &Cli) -> anyhow::Result<u8> {
-    let plan = planrisk::input::read_plan(&cli.plan)?;
+    if let Some(Command::Rules) = cli.command {
+        print!("{}", render_rule_list(&all_rules()));
+        return Ok(exit_code::OK);
+    }
+
+    // clap guarantees PLAN_JSON is present when there is no subcommand.
+    let source = cli.plan.as_deref().expect("PLAN_JSON is required");
+    let plan = planrisk::input::read_plan(source)?;
     let report = Report::build(plan, &all_rules());
     let output = match cli.format {
         Format::Terminal => render_text(&report),

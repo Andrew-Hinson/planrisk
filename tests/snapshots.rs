@@ -11,7 +11,7 @@ use std::path::Path;
 use planrisk::input::read_plan;
 use planrisk::json::render_json;
 use planrisk::report::Report;
-use planrisk::rules::all_rules;
+use planrisk::rules::{all_rules, render_rule_list};
 
 /// Paths of every fixture, sorted so test output is stable.
 fn fixtures() -> Vec<std::path::PathBuf> {
@@ -45,4 +45,10 @@ fn json_output() {
         );
         insta::assert_snapshot!(format!("json__{}", name(&path)), json);
     }
+}
+
+#[test]
+fn rule_list() {
+    // Built from all_rules(), so a new rule shows up here as a snapshot diff.
+    insta::assert_snapshot!("rules", render_rule_list(&all_rules()));
 }

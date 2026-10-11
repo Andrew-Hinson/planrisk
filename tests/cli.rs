@@ -190,3 +190,29 @@ fn help_lists_exit_codes() {
         .stdout(contains("Exit codes:"))
         .stdout(contains("--fail-on <SEVERITY>"));
 }
+
+#[test]
+fn rules_subcommand_lists_rules() {
+    cargo_bin_cmd!("planrisk")
+        .arg("rules")
+        .assert()
+        .success()
+        .stdout(contains("stateful-replace  critical"));
+}
+
+#[test]
+fn rules_subcommand_takes_no_plan_options() {
+    cargo_bin_cmd!("planrisk")
+        .args(["rules", "--fail-on", "low"])
+        .assert()
+        .code(1);
+}
+
+#[test]
+fn plan_is_still_required_without_a_subcommand() {
+    cargo_bin_cmd!("planrisk")
+        .args(["--format", "json"])
+        .assert()
+        .code(1)
+        .stderr(contains("<PLAN_JSON>"));
+}
