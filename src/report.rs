@@ -3,6 +3,7 @@
 use std::cmp::Reverse;
 use std::collections::HashSet;
 
+use crate::config::Config;
 use crate::finding::{Finding, Severity};
 use crate::plan::Plan;
 use crate::rules::Rule;
@@ -25,12 +26,24 @@ pub struct Report {
 impl Report {
     /// Runs every rule over the plan and collects the findings.
     pub fn build(plan: Plan, rules: &[Box<dyn Rule>]) -> Report {
+        Report::build_with_config(plan, rules, &Config::default())
+    }
+
+    /// Like [`Report::build`], with the config file's severities and
+    /// disabled rules applied to the findings.
+    pub fn build_with_config(plan: Plan, rules: &[Box<dyn Rule>], config: &Config) -> Report {
         let mut findings: Vec<Finding> = Vec::new();
         // (rule ID, address) pairs whose findings a more specific rule replaced.
         let mut superseded: HashSet<(&str, String)> = HashSet::new();
 
         for rule in rules {
-            let found = rule.check(&plan);
+            // Config applies before superseding, so a disabled specific
+            // finding doesn't hide the general one it would replace.
+            let found: Vec<Finding> = rule
+                .check(&plan)
+                .into_iter()
+                .filter_map(|finding| config.apply(finding))
+                .collect();
             if let Some(general) = rule.supersedes() {
                 for finding in &found {
                     if let Some(address) = &finding.address {
@@ -221,7 +234,7 @@ mod tests {
 
     #[test]
     fn generic_findings_remain_without_the_stateful_rules() {
-        // As if config had disabled the stateful rules (issue #25).
+        // As if the stateful rules weren't registered at all.
         let rules: Vec<Box<dyn Rule>> = crate::rules::all_rules()
             .into_iter()
             .filter(|rule| !rule.id().starts_with("stateful-"))
@@ -233,6 +246,45 @@ mod tests {
                 ("replace", Some("aws_db_instance.main")),
                 ("delete", Some("aws_instance.web")),
                 ("delete", Some("aws_s3_bucket.logs")),
+            ]
+        );
+    }
+
+    #[test]
+    fn config_applies_before_superseding() {
+        let rules = crate::rules::all_rules();
+        let ids: Vec<&str> = rules.iter().map(|rule| rule.id()).collect();
+        let config = Config::parse(
+            r#"
+            [rules.delete]
+            severity = "low"
+
+            [[overrides]]
+            address = "aws_s3_bucket.logs"
+            rule = "stateful-delete"
+            enabled = false
+            "#,
+            &ids,
+        )
+        .unwrap();
+        let report = Report::build_with_config(stateful_plan(), &rules, &config);
+        let found: Vec<_> = report
+            .findings
+            .iter()
+            .map(|f| (f.rule_id, f.address.as_deref(), f.severity))
+            .collect();
+        // With stateful-delete off for the bucket, its plain delete finding
+        // shows instead, at the configured severity.
+        assert_eq!(
+            found,
+            [
+                (
+                    "stateful-replace",
+                    Some("aws_db_instance.main"),
+                    Severity::Critical
+                ),
+                ("delete", Some("aws_instance.web"), Severity::Low),
+                ("delete", Some("aws_s3_bucket.logs"), Severity::Low),
             ]
         );
     }

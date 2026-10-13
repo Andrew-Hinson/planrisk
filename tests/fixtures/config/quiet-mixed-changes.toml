@@ -1,0 +1,17 @@
+# Used by tests/cli.rs with mixed-changes.json: no finding stays critical.
+[thresholds]
+blast_radius_changes = 1000
+blast_radius_deletes = 1000
+
+[rules.stateful-replace]
+severity = "high"
+
+[[overrides]]
+address = "aws_s3_bucket.logs"
+rule = "stateful-delete"
+enabled = false
+
+[[overrides]]
+address = "aws_sqs_queue.workers[2]"
+rule = "*"
+severity = "low"

@@ -17,6 +17,7 @@ pub mod stateful;
 mod stateful_delete;
 mod stateful_replace;
 
+use crate::config::Thresholds;
 use crate::finding::{Finding, Severity};
 use crate::plan::Plan;
 
@@ -52,17 +53,31 @@ pub trait Rule {
     fn check(&self, plan: &Plan) -> Vec<Finding>;
 }
 
-/// Every built-in rule, in the order they run.
+/// Every built-in rule with default settings, in the order they run.
 ///
 /// `Box<dyn Rule>` lets one list hold different rule types: each `Box` points
 /// to some type that implements `Rule`, and calls are dispatched at runtime.
 pub fn all_rules() -> Vec<Box<dyn Rule>> {
+    all_rules_with(&Thresholds::default())
+}
+
+/// Every built-in rule, using the config file's thresholds where it sets them.
+pub fn all_rules_with(thresholds: &Thresholds) -> Vec<Box<dyn Rule>> {
+    let blast_radius = blast_radius::BlastRadius::default();
+    let blast_radius = blast_radius::BlastRadius {
+        max_changes: thresholds
+            .blast_radius_changes
+            .unwrap_or(blast_radius.max_changes),
+        max_destroys: thresholds
+            .blast_radius_deletes
+            .unwrap_or(blast_radius.max_destroys),
+    };
     vec![
         Box::new(stateful_delete::StatefulDelete),
         Box::new(stateful_replace::StatefulReplace),
         Box::new(delete::Delete),
         Box::new(replace::Replace),
-        Box::new(blast_radius::BlastRadius::default()),
+        Box::new(blast_radius),
         Box::new(sg_open_ingress::SgOpenIngress),
         Box::new(iam_wildcard::IamWildcard),
         Box::new(s3_public_access::S3PublicAccess),
