@@ -3,24 +3,33 @@ source: tests/snapshots.rs
 expression: render_text(&report(&path))
 ---
 Terraform 1.16.1, plan format 1.2
-8 to create, 4 to update, 0 to replace, 1 to delete
+10 to create, 5 to update, 1 to replace, 1 to delete
 
 Findings:
+  high      aws_db_instance.reporting: will be publicly accessible (publicly_accessible = true) [public-endpoint]
   high      aws_iam_policy.reader: policy grants full "*:*" administrative privileges ("Action": "*" on "Resource": "*"; statement Everything) [iam-wildcard]
   high      aws_iam_role.app: assume_role_policy grants access to everyone with "Principal": "*" (has a Condition, which planrisk doesn't evaluate) [iam-wildcard]
   high      aws_iam_role_policy.app_logs: policy grants "Resource": "*" [iam-wildcard]
+  high      aws_instance.bastion: instance will get a public IP address (associate_public_ip_address = true) [public-endpoint]
+  high      aws_launch_template.web: instances launched from it will get a public IP address (associate_public_ip_address = true) [public-endpoint]
   high      aws_s3_bucket_policy.assets_public: policy grants access to everyone with "Principal": "*" [iam-wildcard]
   high      aws_s3_bucket_public_access_block.assets: turns off S3 Block Public Access: block_public_policy, restrict_public_buckets [s3-public-access]
   high      aws_s3_bucket_public_access_block.logs: S3 Block Public Access settings will be destroyed (turns off block_public_acls, block_public_policy, ignore_public_acls, restrict_public_buckets; aws_s3_bucket_public_access_block.logs is not in configuration) [s3-public-access]
   high      aws_security_group.web: allows ingress from 0.0.0.0/0 to port 22 (tcp) [sg-open-ingress]
   high      aws_security_group_rule.ssh_ipv6: allows ingress from ::/0 to port 22 (tcp) [sg-open-ingress]
   high      aws_vpc_security_group_ingress_rule.everything: allows ingress from 0.0.0.0/0 to all ports and protocols [sg-open-ingress]
+  medium    aws_instance.bastion: must be replaced (destroy and then create replacement; forced by changes to associate_public_ip_address) [replace]
+  medium    aws_lb.public_web: load balancer may be internet-facing (internal is only known after apply; it defaults to false, which is internet-facing) [public-endpoint]
 
 Changes:
+  update   aws_db_instance.reporting
   create   aws_iam_policy.deny_all
   update   aws_iam_policy.reader
   update   aws_iam_role.app
   create   aws_iam_role_policy.app_logs
+  replace  aws_instance.bastion
+  create   aws_launch_template.web
+  create   aws_lb.public_web
   create   aws_s3_bucket_policy.assets_public
   update   aws_s3_bucket_public_access_block.assets
   delete   aws_s3_bucket_public_access_block.logs

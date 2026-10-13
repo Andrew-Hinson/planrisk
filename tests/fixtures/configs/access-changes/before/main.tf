@@ -102,3 +102,26 @@ resource "aws_s3_account_public_access_block" "this" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+resource "aws_db_instance" "reporting" {
+  identifier          = "planrisk-fixture-reporting"
+  engine              = "postgres"
+  instance_class      = "db.t4g.micro"
+  allocated_storage   = 20
+  username            = "planrisk"
+  password            = "not-a-real-password"
+  publicly_accessible = false
+  skip_final_snapshot = true
+}
+
+resource "aws_lb" "internal_api" {
+  name     = "planrisk-fixture-internal-api"
+  internal = true
+  subnets  = ["subnet-00000000000000001", "subnet-00000000000000002"]
+}
+
+resource "aws_instance" "bastion" {
+  ami                         = "ami-00000000000000000"
+  instance_type               = "t3.micro"
+  associate_public_ip_address = false
+}

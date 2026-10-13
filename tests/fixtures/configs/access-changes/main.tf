@@ -194,3 +194,43 @@ resource "aws_s3_bucket_public_access_block" "reports" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+# Database made reachable from the internet: fires.
+resource "aws_db_instance" "reporting" {
+  identifier          = "planrisk-fixture-reporting"
+  engine              = "postgres"
+  instance_class      = "db.t4g.micro"
+  allocated_storage   = 20
+  username            = "planrisk"
+  password            = "not-a-real-password"
+  publicly_accessible = true
+  skip_final_snapshot = true
+}
+
+# Unchanged internal load balancer: does not fire.
+resource "aws_lb" "internal_api" {
+  name     = "planrisk-fixture-internal-api"
+  internal = true
+  subnets  = ["subnet-00000000000000001", "subnet-00000000000000002"]
+}
+
+# New load balancer without `internal`: AWS makes it internet-facing.
+resource "aws_lb" "public_web" {
+  name    = "planrisk-fixture-public-web"
+  subnets = ["subnet-00000000000000001", "subnet-00000000000000002"]
+}
+
+# Instance given a public IP address: fires.
+resource "aws_instance" "bastion" {
+  ami                         = "ami-00000000000000000"
+  instance_type               = "t3.micro"
+  associate_public_ip_address = true
+}
+
+# Launch template whose instances get public IP addresses: fires.
+resource "aws_launch_template" "web" {
+  name = "planrisk-fixture-web"
+  network_interfaces {
+    associate_public_ip_address = true
+  }
+}
