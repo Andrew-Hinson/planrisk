@@ -300,3 +300,134 @@ fn markdown_has_no_colors_even_when_forced() {
         .success()
         .stdout(predicates::str::contains("\u{1b}[").not());
 }
+
+const MIXED_CHANGES: &str = "tests/fixtures/mixed-changes.json";
+
+/// `planrisk --format json` findings as (rule, address, severity).
+fn findings(output: &[u8]) -> Vec<(String, Option<String>, String)> {
+    let report: serde_json::Value = serde_json::from_slice(output).unwrap();
+    report["findings"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|f| {
+            (
+                f["rule_id"].as_str().unwrap().to_string(),
+                f["address"].as_str().map(str::to_string),
+                f["severity"].as_str().unwrap().to_string(),
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn config_changes_severities_and_disables_findings() {
+    let output = cargo_bin_cmd!("planrisk")
+        .args([MIXED_CHANGES, "--format", "json", "--fail-on", "critical"])
+        .args(["--config", "tests/fixtures/config/quiet-mixed-changes.toml"])
+        .assert()
+        .code(0)
+        .get_output()
+        .stdout
+        .clone();
+    let found = findings(&output);
+    let find = |rule: &str, address: &str| {
+        found
+            .iter()
+            .find(|(r, a, _)| r == rule && a.as_deref() == Some(address))
+            .map(|(_, _, severity)| severity.as_str())
+    };
+    assert_eq!(
+        find("stateful-replace", "aws_db_instance.main"),
+        Some("high")
+    );
+    // stateful-delete is off for the bucket, so its plain delete shows.
+    assert_eq!(find("stateful-delete", "aws_s3_bucket.logs"), None);
+    assert_eq!(find("delete", "aws_s3_bucket.logs"), Some("medium"));
+    // The override's brackets match the address literally.
+    assert_eq!(find("delete", "aws_sqs_queue.workers[2]"), Some("low"));
+    assert_eq!(find("delete", "aws_sqs_queue.unused"), Some("medium"));
+}
+
+#[test]
+fn config_thresholds_change_blast_radius() {
+    let has_blast_radius = |args: &[&str]| {
+        let output = cargo_bin_cmd!("planrisk")
+            .args(["tests/fixtures/large.json", "--format", "json"])
+            .args(args)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        findings(&output)
+            .iter()
+            .any(|(rule, _, _)| rule == "blast-radius")
+    };
+    assert!(has_blast_radius(&[]));
+    assert!(!has_blast_radius(&[
+        "--config",
+        "tests/fixtures/config/quiet-mixed-changes.toml"
+    ]));
+}
+
+#[test]
+fn planrisk_toml_in_the_current_directory_is_loaded() {
+    let dir = "tests/fixtures/config/cwd";
+    let plan = std::fs::canonicalize(MIXED_CHANGES).unwrap();
+    cargo_bin_cmd!("planrisk")
+        .current_dir(dir)
+        .arg(&plan)
+        .args(["--format", "json"])
+        .assert()
+        .success()
+        .stdout(contains("stateful-replace").and(contains("stateful-delete").not()));
+    // An explicit --config replaces it.
+    let other = std::fs::canonicalize("tests/fixtures/config/quiet-mixed-changes.toml").unwrap();
+    cargo_bin_cmd!("planrisk")
+        .current_dir(dir)
+        .arg(&plan)
+        .args(["--format", "json", "--config"])
+        .arg(&other)
+        .assert()
+        .success()
+        .stdout(
+            contains("stateful-delete")
+                .not()
+                .and(contains(r#""severity": "high""#)),
+        );
+}
+
+#[test]
+fn missing_config_file_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .args([CREATE_ONLY, "--config", "no-such.toml"])
+        .assert()
+        .code(1)
+        .stderr(contains("could not read config file `no-such.toml`"));
+}
+
+#[test]
+fn unknown_rule_in_config_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .args([
+            CREATE_ONLY,
+            "--config",
+            "tests/fixtures/config/unknown-rule.toml",
+        ])
+        .assert()
+        .code(1)
+        .stderr(contains(
+            "invalid config file `tests/fixtures/config/unknown-rule.toml`: \
+             in [rules.stateful-delte]: unknown rule `stateful-delte`",
+        ));
+}
+
+#[test]
+fn typo_in_config_exits_1() {
+    cargo_bin_cmd!("planrisk")
+        .args([CREATE_ONLY, "--config", "tests/fixtures/config/typo.toml"])
+        .assert()
+        .code(1)
+        .stderr(contains("invalid config file").and(contains("unknown field `severty`")));
+}

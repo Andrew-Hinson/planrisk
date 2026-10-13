@@ -5,6 +5,7 @@
 //! only import from a library, not from a binary.
 
 pub mod action;
+pub mod config;
 pub mod finding;
 pub mod input;
 pub mod json;

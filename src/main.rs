@@ -1,12 +1,15 @@
 use std::io::{IsTerminal, Write};
 use std::process::ExitCode;
 
+use std::path::Path;
+
 use clap::{Parser, Subcommand, ValueEnum};
+use planrisk::config::{self, Config};
 use planrisk::finding::Severity;
 use planrisk::json::render_json;
 use planrisk::markdown::render_markdown;
 use planrisk::report::Report;
-use planrisk::rules::{all_rules, render_rule_list};
+use planrisk::rules::{all_rules, all_rules_with, render_rule_list};
 use planrisk::summary::render_text_colored;
 
 /// Exit codes, in one place. Also listed in `--help` (see `EXIT_CODES_HELP`)
@@ -14,7 +17,7 @@ use planrisk::summary::render_text_colored;
 mod exit_code {
     /// Ran fine, and no finding is at or above `--fail-on` (or it wasn't set).
     pub const OK: u8 = 0;
-    /// Something went wrong: bad input, unreadable file, bad arguments.
+    /// Something went wrong: bad input, unreadable file, bad config, bad arguments.
     pub const ERROR: u8 = 1;
     /// Ran fine, but at least one finding is at or above `--fail-on`.
     pub const FAIL_ON: u8 = 2;
@@ -23,7 +26,7 @@ mod exit_code {
 const EXIT_CODES_HELP: &str = "\
 Exit codes:
   0  no finding at or above --fail-on (or --fail-on not set)
-  1  error: bad input, unreadable file or bad arguments
+  1  error: bad input, unreadable file, bad config or bad arguments
   2  at least one finding at or above --fail-on";
 
 /// Reads a Terraform plan and flags risky changes.
@@ -55,6 +58,11 @@ struct Cli {
     /// Without it, findings never fail the run.
     #[arg(long, value_enum, value_name = "SEVERITY")]
     fail_on: Option<Severity>,
+
+    /// Config file [default: .planrisk.toml in the current directory,
+    /// if it exists].
+    #[arg(long, value_name = "PATH")]
+    config: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -111,8 +119,9 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
 
     // clap guarantees PLAN_JSON is present when there is no subcommand.
     let source = cli.plan.as_deref().expect("PLAN_JSON is required");
+    let config = load_config(cli.config.as_deref())?;
     let plan = planrisk::input::read_plan(source)?;
-    let report = Report::build(plan, &all_rules());
+    let report = Report::build_with_config(plan, &all_rules_with(&config.thresholds), &config);
     // Without --format: a person at a terminal gets the terminal summary;
     // anything else (a pipe, a file, CI) gets Markdown for a PR comment.
     let format = cli.format.unwrap_or(if std::io::stdout().is_terminal() {
@@ -150,4 +159,18 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
         }
     }
     Ok(exit_code::OK)
+}
+
+/// Loads `--config`, or `.planrisk.toml` if it exists, or no config.
+fn load_config(path: Option<&str>) -> anyhow::Result<Config> {
+    let rules = all_rules();
+    let ids: Vec<&str> = rules.iter().map(|rule| rule.id()).collect();
+    match path {
+        // An explicit path must exist.
+        Some(path) => Config::load(Path::new(path), &ids),
+        None if Path::new(config::DEFAULT_PATH).exists() => {
+            Config::load(Path::new(config::DEFAULT_PATH), &ids)
+        }
+        None => Ok(Config::default()),
+    }
 }

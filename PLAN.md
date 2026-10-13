@@ -277,6 +277,18 @@ enabled = false
 Unknown keys and unknown rule IDs are errors (exit 1), so a typo fails
 loudly instead of being silently ignored. Use `#[serde(deny_unknown_fields)]`.
 
+Settings apply to a finding in this order, and the last one to set a value
+wins: the rule's own severity, then `[rules.<id>]`, then each matching
+`[[overrides]]` entry in file order. Overrides match only findings about a
+resource; plan-level findings such as blast radius use `[rules.<id>]`.
+Config applies before a stateful rule supersedes its generic counterpart, so
+turning off `stateful-delete` for a resource shows its plain `delete`
+finding instead.
+
+In `address` globs, `*` matches any characters (dots included) and `?` one
+character. Everything else is literal, so `aws_instance.web[0]` and
+`module.app["eu"].*` work as written.
+
 ## 11. Output
 
 All three formats are built from the same `Report` struct (findings, counts

@@ -1,0 +1,3 @@
+# Loaded without --config when planrisk runs in this directory.
+[rules.stateful-delete]
+enabled = false

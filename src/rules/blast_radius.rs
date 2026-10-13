@@ -2,7 +2,8 @@
 //!
 //! Large plans are harder to review and harder to roll back if something
 //! goes wrong. There is no industry standard for "too many"; the default
-//! thresholds are heuristics (PLAN.md §7) and will be configurable (issue #25).
+//! thresholds are heuristics (PLAN.md §7), and `[thresholds]` in the config
+//! file changes them.
 
 use crate::action::Action;
 use crate::finding::{Finding, Severity};
