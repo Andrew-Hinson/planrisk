@@ -6,6 +6,7 @@
 
 use planrisk::input::read_plan;
 use planrisk::json::render_json;
+use planrisk::markdown::render_markdown;
 use planrisk::redact::PLACEHOLDER;
 use planrisk::report::Report;
 use planrisk::rules::all_rules;
@@ -34,10 +35,11 @@ fn fixture_really_contains_the_secrets() {
 #[test]
 fn no_output_format_contains_a_secret() {
     let report = report();
-    // Add each new output format here (Markdown: issue #24).
+    // Add each new output format here.
     let outputs = [
         ("terminal", render_text(&report)),
         ("json", render_json(&report)),
+        ("markdown", render_markdown(&report)),
     ];
     for (format, output) in outputs {
         for secret in SECRETS {

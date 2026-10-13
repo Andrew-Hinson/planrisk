@@ -1,0 +1,18 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: no findings
+
+**Plan:** 2 to create, 0 to update, 0 to replace, 0 to delete, 1 with an unknown action · Terraform 1.16.1
+
+<details><summary>Changes (3)</summary>
+
+| Action | Resource | Notes |
+|---|---|---|
+| create | `aws_s3_bucket.assets` |  |
+| unknown \["teleport"\] | `aws_security_group.web` |  |
+| create | `module.queue.aws_sqs_queue.this` |  |
+
+</details>

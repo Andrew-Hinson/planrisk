@@ -10,6 +10,7 @@ use std::path::Path;
 
 use planrisk::input::read_plan;
 use planrisk::json::render_json;
+use planrisk::markdown::render_markdown;
 use planrisk::report::Report;
 use planrisk::rules::{all_rules, render_rule_list};
 use planrisk::summary::render_text;
@@ -54,6 +55,16 @@ fn terminal_output() {
         insta::assert_snapshot!(
             format!("terminal__{}", name(&path)),
             render_text(&report(&path))
+        );
+    }
+}
+
+#[test]
+fn markdown_output() {
+    for path in fixtures() {
+        insta::assert_snapshot!(
+            format!("markdown__{}", name(&path)),
+            render_markdown(&report(&path))
         );
     }
 }
