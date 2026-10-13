@@ -2,12 +2,26 @@
 name = "planrisk"
 version = "0.1.0"
 edition = "2024"
+# The oldest Rust that builds planrisk: globset needs 1.88.
+rust-version = "1.88"
 description = "Reads a Terraform plan JSON and flags risky changes: destroys, replacements, widened access, blast radius."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/Andrew-Hinson/planrisk"
 readme = "README.md"
 keywords = ["terraform", "plan", "risk", "ci", "infrastructure"]
 categories = ["command-line-utilities", "development-tools"]
+# Left out of the published crate: CI, release and planning files, and the
+# Terraform configs that generate the fixtures. The plan fixtures stay, so
+# `cargo test` works from the crate. (`exclude` rather than `include`, since
+# `include` ignores .gitignore and would pick up .terraform/ provider binaries.)
+exclude = [
+    "/.github",
+    "/PLAN.md",
+    "/dist-workspace.toml",
+    "/tests/fixtures/configs",
+    "/tests/fixtures/generate.sh",
+    "/tests/fixtures/seed_state.py",
+]
 
 [dependencies]
 anstream = "1.0.0"
