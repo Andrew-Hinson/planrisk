@@ -9,6 +9,7 @@ mod blast_radius;
 mod delete;
 pub mod explain;
 mod iam_wildcard;
+mod public_endpoint;
 mod replace;
 mod s3_public_access;
 mod sg_open_ingress;
@@ -65,6 +66,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(sg_open_ingress::SgOpenIngress),
         Box::new(iam_wildcard::IamWildcard),
         Box::new(s3_public_access::S3PublicAccess),
+        Box::new(public_endpoint::PublicEndpoint),
     ]
 }
 

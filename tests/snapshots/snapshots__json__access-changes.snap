@@ -9,9 +9,9 @@ expression: json
   "plan_format_version": "1.2",
   "max_severity": "high",
   "counts": {
-    "create": 8,
-    "update": 4,
-    "replace": 0,
+    "create": 10,
+    "update": 5,
+    "replace": 1,
     "delete": 1,
     "forget": 0,
     "read": 0,
@@ -20,6 +20,13 @@ expression: json
     "unknown": 0
   },
   "findings": [
+    {
+      "rule_id": "public-endpoint",
+      "severity": "high",
+      "address": "aws_db_instance.reporting",
+      "message": "will be publicly accessible (publicly_accessible = true)",
+      "reason": null
+    },
     {
       "rule_id": "iam-wildcard",
       "severity": "high",
@@ -39,6 +46,20 @@ expression: json
       "severity": "high",
       "address": "aws_iam_role_policy.app_logs",
       "message": "policy grants \"Resource\": \"*\"",
+      "reason": null
+    },
+    {
+      "rule_id": "public-endpoint",
+      "severity": "high",
+      "address": "aws_instance.bastion",
+      "message": "instance will get a public IP address (associate_public_ip_address = true)",
+      "reason": null
+    },
+    {
+      "rule_id": "public-endpoint",
+      "severity": "high",
+      "address": "aws_launch_template.web",
+      "message": "instances launched from it will get a public IP address (associate_public_ip_address = true)",
       "reason": null
     },
     {
@@ -82,6 +103,20 @@ expression: json
       "address": "aws_vpc_security_group_ingress_rule.everything",
       "message": "allows ingress from 0.0.0.0/0 to all ports and protocols",
       "reason": null
+    },
+    {
+      "rule_id": "replace",
+      "severity": "medium",
+      "address": "aws_instance.bastion",
+      "message": "must be replaced",
+      "reason": "destroy and then create replacement; forced by changes to associate_public_ip_address"
+    },
+    {
+      "rule_id": "public-endpoint",
+      "severity": "medium",
+      "address": "aws_lb.public_web",
+      "message": "load balancer may be internet-facing",
+      "reason": "internal is only known after apply; it defaults to false, which is internet-facing"
     }
   ]
 }
