@@ -1,15 +1,22 @@
-//! The plain-text summary: counts per action, findings, then one line per change.
+//! The terminal summary: counts per action, findings, then one line per change.
 //!
 //! It never prints attribute values, so values that are only known after
 //! apply (`after_unknown`) can't be shown as removed, and sensitive values
 //! can't leak.
+//!
+//! [`render_text`] gives plain text; [`render_text_colored`] adds ANSI
+//! colors. Changes use the colors `terraform plan` uses for each action
+//! (create green, update yellow, destroy red, read cyan); findings are
+//! colored by severity. Whether colors are actually shown (terminal or not,
+//! `NO_COLOR`, `--no-color`) is decided where the output is written.
 
 use std::fmt::Write;
 
+use anstyle::{AnsiColor, Style};
 use serde::Serialize;
 
 use crate::action::Action;
-use crate::finding::Finding;
+use crate::finding::{Finding, Severity};
 use crate::plan::ResourceChange;
 use crate::report::Report;
 
@@ -84,8 +91,65 @@ impl Counts {
     }
 }
 
-/// Renders the whole summary for a checked plan.
+/// Renders the summary as plain text.
 pub fn render_text(report: &Report) -> String {
+    render(report, Palette { colored: false })
+}
+
+/// Renders the summary with ANSI colors.
+pub fn render_text_colored(report: &Report) -> String {
+    render(report, Palette { colored: true })
+}
+
+/// Colors for the summary. With `colored: false`, `paint` returns the text
+/// unchanged, so one renderer produces both outputs.
+#[derive(Clone, Copy)]
+struct Palette {
+    colored: bool,
+}
+
+impl Palette {
+    fn paint(self, style: Style, text: &str) -> String {
+        if self.colored {
+            // `{style}` starts the style and `{style:#}` resets it.
+            format!("{style}{text}{style:#}")
+        } else {
+            text.to_string()
+        }
+    }
+
+    fn heading(self, text: &str) -> String {
+        self.paint(Style::new().bold(), text)
+    }
+
+    fn severity(self, severity: Severity, text: &str) -> String {
+        let style = match severity {
+            Severity::Critical => color(AnsiColor::Red).bold(),
+            Severity::High => color(AnsiColor::Red),
+            Severity::Medium => color(AnsiColor::Yellow),
+            Severity::Low => color(AnsiColor::Blue),
+        };
+        self.paint(style, text)
+    }
+
+    /// Terraform's color for each action, from `terraform plan` output.
+    fn action(self, label: &str, text: &str) -> String {
+        let style = match label {
+            "create" => color(AnsiColor::Green),
+            "update" => color(AnsiColor::Yellow),
+            "replace" | "delete" | "forget" => color(AnsiColor::Red),
+            "read" => color(AnsiColor::Cyan),
+            _ => Style::new(),
+        };
+        self.paint(style, text)
+    }
+}
+
+fn color(color: AnsiColor) -> Style {
+    Style::new().fg_color(Some(color.into()))
+}
+
+fn render(report: &Report, palette: Palette) -> String {
     let plan = &report.plan;
     // `write!` to a String can't fail, so the results are safely ignored
     // with `let _ =` throughout.
@@ -100,7 +164,16 @@ pub fn render_text(report: &Report) -> String {
         plan.format_version
     );
 
-    let lines: Vec<String> = plan.resource_changes.iter().filter_map(describe).collect();
+    let line = |(label, rest): (String, String)| {
+        // Pad before painting: color codes would throw off the padding.
+        format!("{}{rest}", palette.action(&label, &format!("{label:<8}")))
+    };
+    let lines: Vec<String> = plan
+        .resource_changes
+        .iter()
+        .filter_map(describe)
+        .map(line)
+        .collect();
     if lines.is_empty() {
         let _ = writeln!(out, "No changes.");
     } else {
@@ -114,48 +187,54 @@ pub fn render_text(report: &Report) -> String {
     // needs first. "No findings" is skipped for an empty plan, where it
     // would only repeat "No changes".
     if !report.findings.is_empty() {
-        let _ = writeln!(out, "\nFindings:");
+        let _ = writeln!(out, "\n{}", palette.heading("Findings:"));
         for finding in &report.findings {
-            let _ = writeln!(out, "  {}", describe_finding(finding));
+            let _ = writeln!(out, "  {}", describe_finding(finding, palette));
         }
     } else if !lines.is_empty() {
         let _ = writeln!(out, "\nNo findings.");
     }
 
     if !lines.is_empty() {
-        let _ = writeln!(out, "\nChanges:");
+        let _ = writeln!(out, "\n{}", palette.heading("Changes:"));
         for line in &lines {
             let _ = writeln!(out, "  {line}");
         }
     }
 
-    let drift: Vec<String> = plan.resource_drift.iter().filter_map(describe).collect();
+    let drift: Vec<String> = plan
+        .resource_drift
+        .iter()
+        .filter_map(describe)
+        .map(line)
+        .collect();
     if !drift.is_empty() {
-        let _ = writeln!(out, "\nChanged outside Terraform (information only):");
+        let heading = palette.heading("Changed outside Terraform (information only):");
+        let _ = writeln!(out, "\n{heading}");
         for line in &drift {
             let _ = writeln!(out, "  {line}");
         }
     }
 
     if !plan.deferred_changes.is_empty() {
-        let _ = writeln!(out, "\nDeferred to a later plan (information only):");
+        let heading = palette.heading("Deferred to a later plan (information only):");
+        let _ = writeln!(out, "\n{heading}");
         for deferred in &plan.deferred_changes {
-            let line = describe(&deferred.resource_change)
+            let text = describe(&deferred.resource_change)
+                .map(line)
                 .unwrap_or_else(|| deferred.resource_change.address.clone());
-            let _ = writeln!(out, "  {line} (reason: {})", deferred.reason);
+            let _ = writeln!(out, "  {text} (reason: {})", deferred.reason);
         }
     }
 
     out
 }
 
-/// One line for a resource change, e.g.
-/// `replace  aws_db_instance.main (create replacement and then destroy)`.
-/// Returns `None` for no-ops that aren't moves or imports: nothing happens to them.
 /// One line for a finding, e.g.
-/// `critical  aws_db_instance.main: will be replaced (engine_version changed) [stateful-replace]`.
-fn describe_finding(finding: &Finding) -> String {
-    let mut line = format!("{:<8}  ", finding.severity);
+/// `critical  aws_db_instance.main: database must be replaced (...) [stateful-replace]`.
+fn describe_finding(finding: &Finding, palette: Palette) -> String {
+    let severity = format!("{:<8}", finding.severity);
+    let mut line = format!("{}  ", palette.severity(finding.severity, &severity));
     if let Some(address) = &finding.address {
         let _ = write!(line, "{address}: ");
     }
@@ -167,7 +246,11 @@ fn describe_finding(finding: &Finding) -> String {
     line
 }
 
-fn describe(rc: &ResourceChange) -> Option<String> {
+/// A resource change as (label, rest of line), e.g. `("replace",
+/// " aws_lb.front (create replacement and then destroy)")`. The label is
+/// separate so it can be padded and colored.
+/// Returns `None` for no-ops that aren't moves or imports: nothing happens to them.
+fn describe(rc: &ResourceChange) -> Option<(String, String)> {
     let mut notes = Vec::new();
 
     let label = match &rc.change.action {
@@ -216,11 +299,11 @@ fn describe(rc: &ResourceChange) -> Option<String> {
         notes.push(format!("deposed object {key}"));
     }
 
-    let mut line = format!("{label:<8} {}", rc.address);
+    let mut rest = format!(" {}", rc.address);
     if !notes.is_empty() {
-        let _ = write!(line, " ({})", notes.join("; "));
+        let _ = write!(rest, " ({})", notes.join("; "));
     }
-    Some(line)
+    Some((label, rest))
 }
 
 #[cfg(test)]
@@ -393,6 +476,43 @@ Changes:
   create   aws_security_group.web
   create   module.queue.aws_sqs_queue.this
 "
+        );
+    }
+
+    #[test]
+    fn colored_output_matches_plain_once_colors_are_removed() {
+        for json in [
+            EVERYTHING,
+            include_str!("../tests/fixtures/mixed-changes.json"),
+            include_str!("../tests/fixtures/access-changes.json"),
+        ] {
+            let report = Report::build(plan(json), &crate::rules::all_rules());
+            let colored = render_text_colored(&report);
+            assert!(colored.contains("\u{1b}["), "no color codes in output");
+            assert_eq!(
+                anstream::adapter::strip_str(&colored).to_string(),
+                render_text(&report)
+            );
+        }
+    }
+
+    #[test]
+    fn colors_follow_terraform_and_severity() {
+        let palette = Palette { colored: true };
+        // ESC[32m is green, ESC[33m yellow, ESC[31m red, ESC[36m cyan.
+        assert_eq!(palette.action("create", "x"), "\u{1b}[32mx\u{1b}[0m");
+        assert_eq!(palette.action("update", "x"), "\u{1b}[33mx\u{1b}[0m");
+        assert_eq!(palette.action("delete", "x"), "\u{1b}[31mx\u{1b}[0m");
+        assert_eq!(palette.action("read", "x"), "\u{1b}[36mx\u{1b}[0m");
+        assert_eq!(palette.action("move", "x"), "x");
+        // Critical is bold red (ESC[1m bold, then red).
+        assert_eq!(
+            palette.severity(Severity::Critical, "x"),
+            "\u{1b}[1m\u{1b}[31mx\u{1b}[0m"
+        );
+        assert_eq!(
+            Palette { colored: false }.severity(Severity::Critical, "x"),
+            "x"
         );
     }
 }
