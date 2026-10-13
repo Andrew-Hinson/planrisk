@@ -7,6 +7,7 @@ blast-radius      medium    Many resources change or are destroyed in one plan
 delete            medium    A resource will be destroyed
 iam-wildcard      high      A policy starts allowing "Action": "*", "Resource": "*" or "Principal": "*"
 replace           medium    A resource must be replaced (destroyed and re-created)
+s3-public-access  high      S3 Block Public Access protections are turned off or removed
 sg-open-ingress   high      A security group starts allowing ingress from 0.0.0.0/0 or ::/0
 stateful-delete   critical  A resource that holds data (database, bucket, disk, ...) will be destroyed
 stateful-replace  critical  A resource that holds data (database, bucket, disk, ...) must be replaced

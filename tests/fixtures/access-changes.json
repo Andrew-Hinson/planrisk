@@ -138,6 +138,23 @@
           }
         },
         {
+          "address": "aws_s3_account_public_access_block.this",
+          "mode": "managed",
+          "type": "aws_s3_account_public_access_block",
+          "name": "this",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "account_id": "fake-account_id",
+            "block_public_acls": true,
+            "block_public_policy": true,
+            "id": "fake-aws_s3_account_public_access_block.this",
+            "ignore_public_acls": true,
+            "restrict_public_buckets": true
+          },
+          "sensitive_values": {}
+        },
+        {
           "address": "aws_s3_bucket_policy.assets_public",
           "mode": "managed",
           "type": "aws_s3_bucket_policy",
@@ -148,6 +165,55 @@
             "bucket": "planrisk-fixture-assets",
             "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws:s3:::planrisk-fixture-assets/*\"}],\"Version\":\"2012-10-17\"}",
             "region": "us-east-1"
+          },
+          "sensitive_values": {},
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "bucket": null,
+            "region": null
+          }
+        },
+        {
+          "address": "aws_s3_bucket_public_access_block.assets",
+          "mode": "managed",
+          "type": "aws_s3_bucket_public_access_block",
+          "name": "assets",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "block_public_acls": true,
+            "block_public_policy": false,
+            "bucket": "planrisk-fixture-assets",
+            "id": "fake-aws_s3_bucket_public_access_block.assets",
+            "ignore_public_acls": true,
+            "region": "us-east-1",
+            "restrict_public_buckets": false,
+            "skip_destroy": null
+          },
+          "sensitive_values": {},
+          "identity_schema_version": 0,
+          "identity": {
+            "account_id": null,
+            "bucket": null,
+            "region": null
+          }
+        },
+        {
+          "address": "aws_s3_bucket_public_access_block.reports",
+          "mode": "managed",
+          "type": "aws_s3_bucket_public_access_block",
+          "name": "reports",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "block_public_acls": true,
+            "block_public_policy": true,
+            "bucket": "planrisk-fixture-reports",
+            "ignore_public_acls": true,
+            "region": "us-east-1",
+            "restrict_public_buckets": true,
+            "skip_destroy": null
           },
           "sensitive_values": {},
           "identity_schema_version": 0,
@@ -626,6 +692,37 @@
       }
     },
     {
+      "address": "aws_s3_account_public_access_block.this",
+      "mode": "managed",
+      "type": "aws_s3_account_public_access_block",
+      "name": "this",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "no-op"
+        ],
+        "before": {
+          "account_id": "fake-account_id",
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "id": "fake-aws_s3_account_public_access_block.this",
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
+        },
+        "after": {
+          "account_id": "fake-account_id",
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "id": "fake-aws_s3_account_public_access_block.this",
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
+        },
+        "after_unknown": {},
+        "before_sensitive": {},
+        "after_sensitive": {}
+      }
+    },
+    {
       "address": "aws_s3_bucket_policy.assets_public",
       "mode": "managed",
       "type": "aws_s3_bucket_policy",
@@ -640,6 +737,105 @@
           "bucket": "planrisk-fixture-assets",
           "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws:s3:::planrisk-fixture-assets/*\"}],\"Version\":\"2012-10-17\"}",
           "region": "us-east-1"
+        },
+        "after_unknown": {
+          "id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {},
+        "after_identity": {
+          "account_id": null,
+          "bucket": null,
+          "region": null
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket_public_access_block.assets",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "assets",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "bucket": "planrisk-fixture-assets",
+          "id": "fake-aws_s3_bucket_public_access_block.assets",
+          "ignore_public_acls": true,
+          "region": "us-east-1",
+          "restrict_public_buckets": true,
+          "skip_destroy": null
+        },
+        "after": {
+          "block_public_acls": true,
+          "block_public_policy": false,
+          "bucket": "planrisk-fixture-assets",
+          "id": "fake-aws_s3_bucket_public_access_block.assets",
+          "ignore_public_acls": true,
+          "region": "us-east-1",
+          "restrict_public_buckets": false,
+          "skip_destroy": null
+        },
+        "after_unknown": {},
+        "before_sensitive": {},
+        "after_sensitive": {},
+        "after_identity": {
+          "account_id": null,
+          "bucket": null,
+          "region": null
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket_public_access_block.logs",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "logs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "delete"
+        ],
+        "before": {
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "bucket": "planrisk-fixture-logs",
+          "id": "fake-aws_s3_bucket_public_access_block.logs",
+          "ignore_public_acls": true,
+          "region": "us-east-1",
+          "restrict_public_buckets": true,
+          "skip_destroy": null
+        },
+        "after": null,
+        "after_unknown": {},
+        "before_sensitive": {},
+        "after_sensitive": false
+      },
+      "action_reason": "delete_because_no_resource_config"
+    },
+    {
+      "address": "aws_s3_bucket_public_access_block.reports",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "reports",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "block_public_acls": true,
+          "block_public_policy": true,
+          "bucket": "planrisk-fixture-reports",
+          "ignore_public_acls": true,
+          "region": "us-east-1",
+          "restrict_public_buckets": true,
+          "skip_destroy": null
         },
         "after_unknown": {
           "id": true
@@ -1130,6 +1326,61 @@
             }
           },
           {
+            "address": "aws_s3_account_public_access_block.this",
+            "mode": "managed",
+            "type": "aws_s3_account_public_access_block",
+            "name": "this",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "account_id": "fake-account_id",
+              "block_public_acls": true,
+              "block_public_policy": true,
+              "id": "fake-aws_s3_account_public_access_block.this",
+              "ignore_public_acls": true,
+              "restrict_public_buckets": true
+            },
+            "sensitive_values": {}
+          },
+          {
+            "address": "aws_s3_bucket_public_access_block.assets",
+            "mode": "managed",
+            "type": "aws_s3_bucket_public_access_block",
+            "name": "assets",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "block_public_acls": true,
+              "block_public_policy": true,
+              "bucket": "planrisk-fixture-assets",
+              "id": "fake-aws_s3_bucket_public_access_block.assets",
+              "ignore_public_acls": true,
+              "region": "us-east-1",
+              "restrict_public_buckets": true,
+              "skip_destroy": null
+            },
+            "sensitive_values": {}
+          },
+          {
+            "address": "aws_s3_bucket_public_access_block.logs",
+            "mode": "managed",
+            "type": "aws_s3_bucket_public_access_block",
+            "name": "logs",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "schema_version": 0,
+            "values": {
+              "block_public_acls": true,
+              "block_public_policy": true,
+              "bucket": "planrisk-fixture-logs",
+              "id": "fake-aws_s3_bucket_public_access_block.logs",
+              "ignore_public_acls": true,
+              "region": "us-east-1",
+              "restrict_public_buckets": true,
+              "skip_destroy": null
+            },
+            "sensitive_values": {}
+          },
+          {
             "address": "aws_security_group.public_https",
             "mode": "managed",
             "type": "aws_security_group",
@@ -1338,6 +1589,28 @@
           "schema_version": 0
         },
         {
+          "address": "aws_s3_account_public_access_block.this",
+          "mode": "managed",
+          "type": "aws_s3_account_public_access_block",
+          "name": "this",
+          "provider_config_key": "aws",
+          "expressions": {
+            "block_public_acls": {
+              "constant_value": true
+            },
+            "block_public_policy": {
+              "constant_value": true
+            },
+            "ignore_public_acls": {
+              "constant_value": true
+            },
+            "restrict_public_buckets": {
+              "constant_value": true
+            }
+          },
+          "schema_version": 0
+        },
+        {
           "address": "aws_s3_bucket_policy.assets_public",
           "mode": "managed",
           "type": "aws_s3_bucket_policy",
@@ -1348,6 +1621,56 @@
               "constant_value": "planrisk-fixture-assets"
             },
             "policy": {}
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_s3_bucket_public_access_block.assets",
+          "mode": "managed",
+          "type": "aws_s3_bucket_public_access_block",
+          "name": "assets",
+          "provider_config_key": "aws",
+          "expressions": {
+            "block_public_acls": {
+              "constant_value": true
+            },
+            "block_public_policy": {
+              "constant_value": false
+            },
+            "bucket": {
+              "constant_value": "planrisk-fixture-assets"
+            },
+            "ignore_public_acls": {
+              "constant_value": true
+            },
+            "restrict_public_buckets": {
+              "constant_value": false
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_s3_bucket_public_access_block.reports",
+          "mode": "managed",
+          "type": "aws_s3_bucket_public_access_block",
+          "name": "reports",
+          "provider_config_key": "aws",
+          "expressions": {
+            "block_public_acls": {
+              "constant_value": true
+            },
+            "block_public_policy": {
+              "constant_value": true
+            },
+            "bucket": {
+              "constant_value": "planrisk-fixture-reports"
+            },
+            "ignore_public_acls": {
+              "constant_value": true
+            },
+            "restrict_public_buckets": {
+              "constant_value": true
+            }
           },
           "schema_version": 0
         },
@@ -1563,7 +1886,7 @@
       ]
     }
   ],
-  "timestamp": "2026-10-11T18:57:27Z",
+  "timestamp": "2026-10-13T13:19:32Z",
   "applyable": true,
   "complete": true,
   "errored": false

@@ -165,3 +165,32 @@ resource "aws_iam_policy" "deny_all" {
     Statement = [{ Effect = "Deny", Action = "*", Resource = "*" }]
   })
 }
+
+# Two protections turned off so the public bucket policy above can work: fires.
+resource "aws_s3_bucket_public_access_block" "assets" {
+  bucket                  = "planrisk-fixture-assets"
+  block_public_acls       = true
+  block_public_policy     = false
+  ignore_public_acls      = true
+  restrict_public_buckets = false
+}
+
+# aws_s3_bucket_public_access_block.logs is gone from config: its protections
+# are removed with it. Fires.
+
+# Unchanged account-wide settings: does not fire.
+resource "aws_s3_account_public_access_block" "this" {
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# New, fully locked-down bucket: does not fire.
+resource "aws_s3_bucket_public_access_block" "reports" {
+  bucket                  = "planrisk-fixture-reports"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
