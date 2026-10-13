@@ -1,3 +1,4 @@
+use std::io::Write;
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand, ValueEnum};
@@ -5,7 +6,7 @@ use planrisk::finding::Severity;
 use planrisk::json::render_json;
 use planrisk::report::Report;
 use planrisk::rules::{all_rules, render_rule_list};
-use planrisk::summary::render_text;
+use planrisk::summary::render_text_colored;
 
 /// Exit codes, in one place. Also listed in `--help` (see `EXIT_CODES_HELP`)
 /// and PLAN.md §9. Changing them breaks CI pipelines, so treat them as fixed.
@@ -42,6 +43,11 @@ struct Cli {
     /// Output format.
     #[arg(long, value_enum, default_value_t = Format::Terminal)]
     format: Format,
+
+    /// Don't use colors in terminal output. Colors are also off when output
+    /// isn't a terminal, or when the NO_COLOR environment variable is set.
+    #[arg(long)]
+    no_color: bool,
 
     /// Exit with code 2 if any finding is this severe or worse.
     /// Without it, findings never fail the run.
@@ -103,11 +109,20 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
     let source = cli.plan.as_deref().expect("PLAN_JSON is required");
     let plan = planrisk::input::read_plan(source)?;
     let report = Report::build(plan, &all_rules());
-    let output = match cli.format {
-        Format::Terminal => render_text(&report),
-        Format::Json => render_json(&report),
-    };
-    print!("{output}");
+    match cli.format {
+        Format::Terminal => {
+            // anstream removes the colors when stdout isn't a terminal, or
+            // NO_COLOR / CLICOLOR say so; `--no-color` always removes them.
+            let stdout = std::io::stdout();
+            let mut out = if cli.no_color {
+                anstream::AutoStream::never(stdout)
+            } else {
+                anstream::AutoStream::auto(stdout)
+            };
+            write!(out, "{}", render_text_colored(&report))?;
+        }
+        Format::Json => print!("{}", render_json(&report)),
+    }
 
     if let Some(threshold) = cli.fail_on {
         let failing = report

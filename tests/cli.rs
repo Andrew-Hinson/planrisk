@@ -1,6 +1,7 @@
 //! End-to-end tests that run the compiled `planrisk` binary.
 
 use assert_cmd::cargo::cargo_bin_cmd;
+use predicates::prelude::*;
 use predicates::str::contains;
 
 const CREATE_ONLY: &str = "tests/fixtures/create-only.json";
@@ -235,4 +236,42 @@ fn format_version_2_fixture_exits_1() {
         .assert()
         .code(1)
         .stderr(contains("plan format version 2.0"));
+}
+
+#[test]
+fn piped_output_has_no_colors() {
+    // assert_cmd captures stdout, so it isn't a terminal.
+    cargo_bin_cmd!("planrisk")
+        .arg("tests/fixtures/mixed-changes.json")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("\u{1b}[").not());
+}
+
+#[test]
+fn clicolor_force_turns_colors_on_and_no_color_wins() {
+    cargo_bin_cmd!("planrisk")
+        .arg("tests/fixtures/mixed-changes.json")
+        .env("CLICOLOR_FORCE", "1")
+        .assert()
+        .success()
+        .stdout(contains("\u{1b}["));
+    // https://no-color.org: NO_COLOR overrides everything.
+    cargo_bin_cmd!("planrisk")
+        .arg("tests/fixtures/mixed-changes.json")
+        .env("CLICOLOR_FORCE", "1")
+        .env("NO_COLOR", "1")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("\u{1b}[").not());
+}
+
+#[test]
+fn no_color_flag_turns_colors_off() {
+    cargo_bin_cmd!("planrisk")
+        .args(["tests/fixtures/mixed-changes.json", "--no-color"])
+        .env("CLICOLOR_FORCE", "1")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("\u{1b}[").not());
 }
