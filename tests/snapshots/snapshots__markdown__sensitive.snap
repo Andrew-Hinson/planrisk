@@ -1,0 +1,18 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: no findings
+
+**Plan:** 3 to create, 0 to update, 0 to replace, 0 to delete · Terraform 1.16.1
+
+<details><summary>Changes (3)</summary>
+
+| Action | Resource | Notes |
+|---|---|---|
+| create | `aws_db_instance.main` |  |
+| create | `aws_secretsmanager_secret.api` |  |
+| create | `aws_secretsmanager_secret_version.api` |  |
+
+</details>

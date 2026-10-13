@@ -1,0 +1,49 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: 12 high, 2 medium
+
+**Plan:** 10 to create, 5 to update, 1 to replace, 1 to delete · Terraform 1.16.1
+
+| Severity | Resource | Finding | Rule |
+|---|---|---|---|
+| **high** | `aws_db_instance.reporting` | will be publicly accessible (publicly\_accessible = true) | `public-endpoint` |
+| **high** | `aws_iam_policy.reader` | policy grants full "\*:\*" administrative privileges ("Action": "\*" on "Resource": "\*"; statement Everything) | `iam-wildcard` |
+| **high** | `aws_iam_role.app` | assume\_role\_policy grants access to everyone with "Principal": "\*" (has a Condition, which planrisk doesn't evaluate) | `iam-wildcard` |
+| **high** | `aws_iam_role_policy.app_logs` | policy grants "Resource": "\*" | `iam-wildcard` |
+| **high** | `aws_instance.bastion` | instance will get a public IP address (associate\_public\_ip\_address = true) | `public-endpoint` |
+| **high** | `aws_launch_template.web` | instances launched from it will get a public IP address (associate\_public\_ip\_address = true) | `public-endpoint` |
+| **high** | `aws_s3_bucket_policy.assets_public` | policy grants access to everyone with "Principal": "\*" | `iam-wildcard` |
+| **high** | `aws_s3_bucket_public_access_block.assets` | turns off S3 Block Public Access: block\_public\_policy, restrict\_public\_buckets | `s3-public-access` |
+| **high** | `aws_s3_bucket_public_access_block.logs` | S3 Block Public Access settings will be destroyed (turns off block\_public\_acls, block\_public\_policy, ignore\_public\_acls, restrict\_public\_buckets; aws\_s3\_bucket\_public\_access\_block.logs is not in configuration) | `s3-public-access` |
+| **high** | `aws_security_group.web` | allows ingress from 0.0.0.0/0 to port 22 (tcp) | `sg-open-ingress` |
+| **high** | `aws_security_group_rule.ssh_ipv6` | allows ingress from ::/0 to port 22 (tcp) | `sg-open-ingress` |
+| **high** | `aws_vpc_security_group_ingress_rule.everything` | allows ingress from 0.0.0.0/0 to all ports and protocols | `sg-open-ingress` |
+| **medium** | `aws_instance.bastion` | must be replaced (destroy and then create replacement; forced by changes to associate\_public\_ip\_address) | `replace` |
+| **medium** | `aws_lb.public_web` | load balancer may be internet-facing (internal is only known after apply; it defaults to false, which is internet-facing) | `public-endpoint` |
+
+<details><summary>Changes (17)</summary>
+
+| Action | Resource | Notes |
+|---|---|---|
+| update | `aws_db_instance.reporting` |  |
+| create | `aws_iam_policy.deny_all` |  |
+| update | `aws_iam_policy.reader` |  |
+| update | `aws_iam_role.app` |  |
+| create | `aws_iam_role_policy.app_logs` |  |
+| replace | `aws_instance.bastion` |  |
+| create | `aws_launch_template.web` |  |
+| create | `aws_lb.public_web` |  |
+| create | `aws_s3_bucket_policy.assets_public` |  |
+| update | `aws_s3_bucket_public_access_block.assets` |  |
+| delete | `aws_s3_bucket_public_access_block.logs` |  |
+| create | `aws_s3_bucket_public_access_block.reports` |  |
+| update | `aws_security_group.web` |  |
+| create | `aws_security_group_rule.egress_all` |  |
+| create | `aws_security_group_rule.ssh_ipv6` |  |
+| create | `aws_vpc_security_group_ingress_rule.everything` |  |
+| create | `aws_vpc_security_group_ingress_rule.vpc_postgres` |  |
+
+</details>

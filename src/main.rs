@@ -1,9 +1,10 @@
-use std::io::Write;
+use std::io::{IsTerminal, Write};
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use planrisk::finding::Severity;
 use planrisk::json::render_json;
+use planrisk::markdown::render_markdown;
 use planrisk::report::Report;
 use planrisk::rules::{all_rules, render_rule_list};
 use planrisk::summary::render_text_colored;
@@ -40,9 +41,10 @@ struct Cli {
     #[arg(value_name = "PLAN_JSON", required = true)]
     plan: Option<String>,
 
-    /// Output format.
-    #[arg(long, value_enum, default_value_t = Format::Terminal)]
-    format: Format,
+    /// Output format [default: terminal when output is a terminal,
+    /// markdown otherwise, e.g. in CI].
+    #[arg(long, value_enum)]
+    format: Option<Format>,
 
     /// Don't use colors in terminal output. Colors are also off when output
     /// isn't a terminal, or when the NO_COLOR environment variable is set.
@@ -61,11 +63,13 @@ enum Command {
     Rules,
 }
 
-/// Output formats for `--format`. Markdown comes in M4 (PLAN.md §11).
+/// Output formats for `--format` (PLAN.md §11).
 #[derive(Clone, Copy, ValueEnum)]
 enum Format {
     /// Human-readable summary.
     Terminal,
+    /// Markdown for a pull request comment.
+    Markdown,
     /// Machine-readable JSON, for scripts and other tools.
     // The format is documented in src/json.rs (and the README, issue #30).
     Json,
@@ -109,7 +113,14 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
     let source = cli.plan.as_deref().expect("PLAN_JSON is required");
     let plan = planrisk::input::read_plan(source)?;
     let report = Report::build(plan, &all_rules());
-    match cli.format {
+    // Without --format: a person at a terminal gets the terminal summary;
+    // anything else (a pipe, a file, CI) gets Markdown for a PR comment.
+    let format = cli.format.unwrap_or(if std::io::stdout().is_terminal() {
+        Format::Terminal
+    } else {
+        Format::Markdown
+    });
+    match format {
         Format::Terminal => {
             // anstream removes the colors when stdout isn't a terminal, or
             // NO_COLOR / CLICOLOR say so; `--no-color` always removes them.
@@ -121,6 +132,7 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
             };
             write!(out, "{}", render_text_colored(&report))?;
         }
+        Format::Markdown => print!("{}", render_markdown(&report)),
         Format::Json => print!("{}", render_json(&report)),
     }
 

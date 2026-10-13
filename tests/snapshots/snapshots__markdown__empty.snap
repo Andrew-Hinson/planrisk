@@ -1,0 +1,6 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: no changes

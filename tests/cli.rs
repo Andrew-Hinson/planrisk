@@ -9,7 +9,7 @@ const CREATE_ONLY: &str = "tests/fixtures/create-only.json";
 #[test]
 fn reads_a_plan_file() {
     cargo_bin_cmd!("planrisk")
-        .arg(CREATE_ONLY)
+        .args([CREATE_ONLY, "--format", "terminal"])
         .assert()
         .success()
         .stdout(contains("3 to create"));
@@ -19,7 +19,7 @@ fn reads_a_plan_file() {
 fn reads_a_plan_from_stdin() {
     let json = std::fs::read_to_string(CREATE_ONLY).unwrap();
     cargo_bin_cmd!("planrisk")
-        .arg("-")
+        .args(["-", "--format", "terminal"])
         .write_stdin(json)
         .assert()
         .success()
@@ -242,7 +242,7 @@ fn format_version_2_fixture_exits_1() {
 fn piped_output_has_no_colors() {
     // assert_cmd captures stdout, so it isn't a terminal.
     cargo_bin_cmd!("planrisk")
-        .arg("tests/fixtures/mixed-changes.json")
+        .args(["tests/fixtures/mixed-changes.json", "--format", "terminal"])
         .assert()
         .success()
         .stdout(predicates::str::contains("\u{1b}[").not());
@@ -251,14 +251,14 @@ fn piped_output_has_no_colors() {
 #[test]
 fn clicolor_force_turns_colors_on_and_no_color_wins() {
     cargo_bin_cmd!("planrisk")
-        .arg("tests/fixtures/mixed-changes.json")
+        .args(["tests/fixtures/mixed-changes.json", "--format", "terminal"])
         .env("CLICOLOR_FORCE", "1")
         .assert()
         .success()
         .stdout(contains("\u{1b}["));
     // https://no-color.org: NO_COLOR overrides everything.
     cargo_bin_cmd!("planrisk")
-        .arg("tests/fixtures/mixed-changes.json")
+        .args(["tests/fixtures/mixed-changes.json", "--format", "terminal"])
         .env("CLICOLOR_FORCE", "1")
         .env("NO_COLOR", "1")
         .assert()
@@ -269,7 +269,32 @@ fn clicolor_force_turns_colors_on_and_no_color_wins() {
 #[test]
 fn no_color_flag_turns_colors_off() {
     cargo_bin_cmd!("planrisk")
-        .args(["tests/fixtures/mixed-changes.json", "--no-color"])
+        .args([
+            "tests/fixtures/mixed-changes.json",
+            "--format",
+            "terminal",
+            "--no-color",
+        ])
+        .env("CLICOLOR_FORCE", "1")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("\u{1b}[").not());
+}
+
+#[test]
+fn piped_output_defaults_to_markdown() {
+    // assert_cmd captures stdout, so it isn't a terminal: like CI.
+    cargo_bin_cmd!("planrisk")
+        .arg("tests/fixtures/mixed-changes.json")
+        .assert()
+        .success()
+        .stdout(predicates::str::starts_with("<!-- planrisk -->\n"));
+}
+
+#[test]
+fn markdown_has_no_colors_even_when_forced() {
+    cargo_bin_cmd!("planrisk")
+        .args(["tests/fixtures/mixed-changes.json", "--format", "markdown"])
         .env("CLICOLOR_FORCE", "1")
         .assert()
         .success()

@@ -1,0 +1,21 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: 1 medium
+
+**Plan:** 0 to create, 0 to update, 1 to replace, 0 to delete, 2 to import · Terraform 1.16.1
+
+| Severity | Resource | Finding | Rule |
+|---|---|---|---|
+| **medium** | `random_string.mismatched` | must be replaced (destroy and then create replacement; this will destroy the imported resource; forced by changes to length, special) | `replace` |
+
+<details><summary>Changes (2)</summary>
+
+| Action | Resource | Notes |
+|---|---|---|
+| import | `random_string.matching` |  |
+| replace | `random_string.mismatched` | import |
+
+</details>

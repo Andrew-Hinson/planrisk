@@ -69,7 +69,7 @@ impl Counts {
     /// e.g. "3 to create, 0 to update, 0 to replace, 0 to delete, 1 to import".
     /// The first four are always shown, like Terraform's own summary; the
     /// rest only when non-zero.
-    fn describe(&self) -> String {
+    pub(crate) fn describe(&self) -> String {
         let mut parts = vec![
             format!("{} to create", self.create),
             format!("{} to update", self.update),
@@ -164,9 +164,14 @@ fn render(report: &Report, palette: Palette) -> String {
         plan.format_version
     );
 
-    let line = |(label, rest): (String, String)| {
+    let line = |change: ChangeLine| {
+        let mut rest = format!(" {}", change.address);
+        if !change.notes.is_empty() {
+            let _ = write!(rest, " ({})", change.notes.join("; "));
+        }
         // Pad before painting: color codes would throw off the padding.
-        format!("{}{rest}", palette.action(&label, &format!("{label:<8}")))
+        let label = &change.label;
+        format!("{}{rest}", palette.action(label, &format!("{label:<8}")))
     };
     let lines: Vec<String> = plan
         .resource_changes
@@ -246,11 +251,18 @@ fn describe_finding(finding: &Finding, palette: Palette) -> String {
     line
 }
 
-/// A resource change as (label, rest of line), e.g. `("replace",
-/// " aws_lb.front (create replacement and then destroy)")`. The label is
-/// separate so it can be padded and colored.
+/// One resource change, ready to display in any format.
+pub(crate) struct ChangeLine {
+    /// e.g. "replace", "move", "import".
+    pub label: String,
+    pub address: String,
+    /// e.g. "create replacement and then destroy", "moved from aws_x.old".
+    pub notes: Vec<String>,
+}
+
+/// Describes a resource change for display.
 /// Returns `None` for no-ops that aren't moves or imports: nothing happens to them.
-fn describe(rc: &ResourceChange) -> Option<(String, String)> {
+pub(crate) fn describe(rc: &ResourceChange) -> Option<ChangeLine> {
     let mut notes = Vec::new();
 
     let label = match &rc.change.action {
@@ -299,11 +311,11 @@ fn describe(rc: &ResourceChange) -> Option<(String, String)> {
         notes.push(format!("deposed object {key}"));
     }
 
-    let mut rest = format!(" {}", rc.address);
-    if !notes.is_empty() {
-        let _ = write!(rest, " ({})", notes.join("; "));
-    }
-    Some((label, rest))
+    Some(ChangeLine {
+        label,
+        address: rc.address.clone(),
+        notes,
+    })
 }
 
 #[cfg(test)]

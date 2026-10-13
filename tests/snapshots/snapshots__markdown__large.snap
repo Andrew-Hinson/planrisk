@@ -1,0 +1,71 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: 6 critical, 1 medium
+
+**Plan:** 0 to create, 40 to update, 0 to replace, 6 to delete · Terraform 1.16.1
+
+| Severity | Resource | Finding | Rule |
+|---|---|---|---|
+| **critical** | `aws_ebs_volume.data[0]` | disk volume will be destroyed (aws\_ebs\_volume.data is not in configuration) | `stateful-delete` |
+| **critical** | `aws_ebs_volume.data[1]` | disk volume will be destroyed (aws\_ebs\_volume.data is not in configuration) | `stateful-delete` |
+| **critical** | `aws_ebs_volume.data[2]` | disk volume will be destroyed (aws\_ebs\_volume.data is not in configuration) | `stateful-delete` |
+| **critical** | `aws_ebs_volume.data[3]` | disk volume will be destroyed (aws\_ebs\_volume.data is not in configuration) | `stateful-delete` |
+| **critical** | `aws_ebs_volume.data[4]` | disk volume will be destroyed (aws\_ebs\_volume.data is not in configuration) | `stateful-delete` |
+| **critical** | `aws_ebs_volume.data[5]` | disk volume will be destroyed (aws\_ebs\_volume.data is not in configuration) | `stateful-delete` |
+| **medium** | whole plan | 46 resources change, more than the threshold of 25; 6 to destroy, more than the threshold of 5 | `blast-radius` |
+
+<details><summary>Changes (46)</summary>
+
+| Action | Resource | Notes |
+|---|---|---|
+| delete | `aws_ebs_volume.data[0]` |  |
+| delete | `aws_ebs_volume.data[1]` |  |
+| delete | `aws_ebs_volume.data[2]` |  |
+| delete | `aws_ebs_volume.data[3]` |  |
+| delete | `aws_ebs_volume.data[4]` |  |
+| delete | `aws_ebs_volume.data[5]` |  |
+| update | `aws_sqs_queue.jobs[0]` |  |
+| update | `aws_sqs_queue.jobs[1]` |  |
+| update | `aws_sqs_queue.jobs[2]` |  |
+| update | `aws_sqs_queue.jobs[3]` |  |
+| update | `aws_sqs_queue.jobs[4]` |  |
+| update | `aws_sqs_queue.jobs[5]` |  |
+| update | `aws_sqs_queue.jobs[6]` |  |
+| update | `aws_sqs_queue.jobs[7]` |  |
+| update | `aws_sqs_queue.jobs[8]` |  |
+| update | `aws_sqs_queue.jobs[9]` |  |
+| update | `aws_sqs_queue.jobs[10]` |  |
+| update | `aws_sqs_queue.jobs[11]` |  |
+| update | `aws_sqs_queue.jobs[12]` |  |
+| update | `aws_sqs_queue.jobs[13]` |  |
+| update | `aws_sqs_queue.jobs[14]` |  |
+| update | `aws_sqs_queue.jobs[15]` |  |
+| update | `aws_sqs_queue.jobs[16]` |  |
+| update | `aws_sqs_queue.jobs[17]` |  |
+| update | `aws_sqs_queue.jobs[18]` |  |
+| update | `aws_sqs_queue.jobs[19]` |  |
+| update | `aws_sqs_queue.jobs[20]` |  |
+| update | `aws_sqs_queue.jobs[21]` |  |
+| update | `aws_sqs_queue.jobs[22]` |  |
+| update | `aws_sqs_queue.jobs[23]` |  |
+| update | `aws_sqs_queue.jobs[24]` |  |
+| update | `aws_sqs_queue.jobs[25]` |  |
+| update | `aws_sqs_queue.jobs[26]` |  |
+| update | `aws_sqs_queue.jobs[27]` |  |
+| update | `aws_sqs_queue.jobs[28]` |  |
+| update | `aws_sqs_queue.jobs[29]` |  |
+| update | `aws_sqs_queue.jobs[30]` |  |
+| update | `aws_sqs_queue.jobs[31]` |  |
+| update | `aws_sqs_queue.jobs[32]` |  |
+| update | `aws_sqs_queue.jobs[33]` |  |
+| update | `aws_sqs_queue.jobs[34]` |  |
+| update | `aws_sqs_queue.jobs[35]` |  |
+| update | `aws_sqs_queue.jobs[36]` |  |
+| update | `aws_sqs_queue.jobs[37]` |  |
+| update | `aws_sqs_queue.jobs[38]` |  |
+| update | `aws_sqs_queue.jobs[39]` |  |
+
+</details>
