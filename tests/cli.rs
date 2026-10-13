@@ -431,3 +431,59 @@ fn typo_in_config_exits_1() {
         .code(1)
         .stderr(contains("invalid config file").and(contains("unknown field `severty`")));
 }
+
+/// Runs planrisk on a plan with many deletes, closing its stdout before
+/// reading anything, as `planrisk plan.json | head -1` does once head is done.
+/// The output is larger than a pipe buffer, so planrisk's writes fail with a
+/// broken pipe.
+fn run_with_closed_stdout(args: &[&str]) -> std::process::Output {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+
+    let changes: Vec<String> = (0..5000)
+        .map(|i| {
+            format!(r#"{{"address": "aws_instance.r{i}", "change": {{"actions": ["delete"]}}}}"#)
+        })
+        .collect();
+    let plan = format!(
+        r#"{{"format_version": "1.2", "planned_values": {{}}, "resource_changes": [{}]}}"#,
+        changes.join(",")
+    );
+
+    let mut child = Command::new(env!("CARGO_BIN_EXE_planrisk"))
+        .arg("-")
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    drop(child.stdout.take());
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(plan.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn closed_stdout_is_not_an_error() {
+    for format in ["terminal", "markdown", "json"] {
+        let output = run_with_closed_stdout(&["--format", format]);
+        assert_eq!(output.status.code(), Some(0), "--format {format}");
+        assert_eq!(
+            String::from_utf8_lossy(&output.stderr),
+            "",
+            "--format {format}"
+        );
+    }
+}
+
+#[test]
+fn closed_stdout_still_exits_2_for_fail_on() {
+    let output = run_with_closed_stdout(&["--format", "json", "--fail-on", "medium"]);
+    assert_eq!(output.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("at or above --fail-on medium"));
+}

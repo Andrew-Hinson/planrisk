@@ -113,7 +113,7 @@ fn main() -> ExitCode {
 /// Runs planrisk and returns the exit code for a successful run.
 fn run(cli: &Cli) -> anyhow::Result<u8> {
     if let Some(Command::Rules) = cli.command {
-        print!("{}", render_rule_list(&all_rules()));
+        write_stdout(&mut std::io::stdout(), &render_rule_list(&all_rules()))?;
         return Ok(exit_code::OK);
     }
 
@@ -139,10 +139,10 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
             } else {
                 anstream::AutoStream::auto(stdout)
             };
-            write!(out, "{}", render_text_colored(&report))?;
+            write_stdout(&mut out, &render_text_colored(&report))?;
         }
-        Format::Markdown => print!("{}", render_markdown(&report)),
-        Format::Json => print!("{}", render_json(&report)),
+        Format::Markdown => write_stdout(&mut std::io::stdout(), &render_markdown(&report))?,
+        Format::Json => write_stdout(&mut std::io::stdout(), &render_json(&report))?,
     }
 
     if let Some(threshold) = cli.fail_on {
@@ -159,6 +159,18 @@ fn run(cli: &Cli) -> anyhow::Result<u8> {
         }
     }
     Ok(exit_code::OK)
+}
+
+/// Writes output to stdout.
+///
+/// A reader that stops early, like `planrisk plan.json | head`, closes the
+/// pipe. That isn't an error, so it's ignored, and the exit code still
+/// reflects `--fail-on`. (`print!` would panic instead.)
+fn write_stdout(out: &mut impl Write, text: &str) -> std::io::Result<()> {
+    match out.write_all(text.as_bytes()).and_then(|()| out.flush()) {
+        Err(err) if err.kind() == std::io::ErrorKind::BrokenPipe => Ok(()),
+        result => result,
+    }
 }
 
 /// Loads `--config`, or `.planrisk.toml` if it exists, or no config.
