@@ -9,10 +9,10 @@ expression: json
   "plan_format_version": "1.2",
   "max_severity": "high",
   "counts": {
-    "create": 7,
-    "update": 3,
+    "create": 8,
+    "update": 4,
     "replace": 0,
-    "delete": 0,
+    "delete": 1,
     "forget": 0,
     "read": 0,
     "import": 0,
@@ -47,6 +47,20 @@ expression: json
       "address": "aws_s3_bucket_policy.assets_public",
       "message": "policy grants access to everyone with \"Principal\": \"*\"",
       "reason": null
+    },
+    {
+      "rule_id": "s3-public-access",
+      "severity": "high",
+      "address": "aws_s3_bucket_public_access_block.assets",
+      "message": "turns off S3 Block Public Access: block_public_policy, restrict_public_buckets",
+      "reason": null
+    },
+    {
+      "rule_id": "s3-public-access",
+      "severity": "high",
+      "address": "aws_s3_bucket_public_access_block.logs",
+      "message": "S3 Block Public Access settings will be destroyed",
+      "reason": "turns off block_public_acls, block_public_policy, ignore_public_acls, restrict_public_buckets; aws_s3_bucket_public_access_block.logs is not in configuration"
     },
     {
       "rule_id": "sg-open-ingress",
