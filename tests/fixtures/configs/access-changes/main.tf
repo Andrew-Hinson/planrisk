@@ -90,3 +90,78 @@ resource "aws_vpc_security_group_ingress_rule" "vpc_postgres" {
   to_port           = 5432
   cidr_ipv4         = "10.0.0.0/16"
 }
+
+# Widened to full "*:*" administrative privileges: fires.
+resource "aws_iam_policy" "reader" {
+  name = "planrisk-fixture-reader"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid      = "Everything"
+      Effect   = "Allow"
+      Action   = "*"
+      Resource = "*"
+    }]
+  })
+}
+
+# Unchanged, already "Resource": "*": does not fire.
+resource "aws_iam_policy" "describe" {
+  name = "planrisk-fixture-describe"
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [{ Effect = "Allow", Action = "ec2:Describe*", Resource = "*" }]
+  })
+}
+
+# Any AWS account may assume the role, limited by a condition: fires, and
+# the finding notes the condition.
+resource "aws_iam_role" "app" {
+  name = "planrisk-fixture-app"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { AWS = "*" }
+      Condition = { StringEquals = { "sts:ExternalId" = "planrisk-fixture" } }
+    }]
+  })
+}
+
+# New inline policy with a specific action on every resource: fires.
+resource "aws_iam_role_policy" "app_logs" {
+  name = "planrisk-fixture-app-logs"
+  role = aws_iam_role.app.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource = "*"
+    }]
+  })
+}
+
+# Public read for everyone ("Principal": "*"): fires.
+resource "aws_s3_bucket_policy" "assets_public" {
+  bucket = "planrisk-fixture-assets"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = "*"
+      Action    = "s3:GetObject"
+      Resource  = "arn:aws:s3:::planrisk-fixture-assets/*"
+    }]
+  })
+}
+
+# Deny statements with wildcards restrict access: does not fire.
+resource "aws_iam_policy" "deny_all" {
+  name = "planrisk-fixture-deny-all"
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [{ Effect = "Deny", Action = "*", Resource = "*" }]
+  })
+}

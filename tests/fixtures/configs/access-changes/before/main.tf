@@ -46,3 +46,36 @@ resource "aws_security_group" "public_https" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_iam_policy" "reader" {
+  name = "planrisk-fixture-reader"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["s3:GetObject"]
+      Resource = "arn:aws:s3:::planrisk-fixture-assets/*"
+    }]
+  })
+}
+
+# Already uses "Resource": "*" before this change: must not be reported again.
+resource "aws_iam_policy" "describe" {
+  name = "planrisk-fixture-describe"
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [{ Effect = "Allow", Action = "ec2:Describe*", Resource = "*" }]
+  })
+}
+
+resource "aws_iam_role" "app" {
+  name = "planrisk-fixture-app"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
