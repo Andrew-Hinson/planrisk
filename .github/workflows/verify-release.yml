@@ -1,22 +1,36 @@
-# TEMPORARY: verifies the release artifacts before the first tag.
-#
-# Waits for the Release workflow on the same commit (which builds every
-# artifact on pull requests while dist's pr-run-mode is "upload"), then on
-# each release platform: checks the archive against sha256.sum, serves the
-# artifacts locally, installs with the real shell installer, and runs
+# Checks a published release the way users get it: on each release
+# platform, installs with the shell installer from the GitHub Release,
+# checks the archive against sha256.sum, and runs
 # tests/release/smoke_test.py on the installed binary.
+#
+# Runs when the Release workflow finishes for a tag. (Not on the `release`
+# event: dist creates the release with GITHUB_TOKEN, and events caused by
+# that token don't start other workflows.) Can also be run by hand for any
+# tag from the Actions tab.
 name: Verify release
 
 on:
-  pull_request:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to verify, e.g. v0.1.0
+        required: true
 
 permissions:
   contents: read
-  actions: read # to find and download the Release workflow's artifacts
 
 jobs:
   verify:
     name: verify (${{ matrix.target }})
+    # For workflow_run: only successful Release runs started by a tag push.
+    # Release also runs on pull requests, where it publishes nothing.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
     strategy:
       fail-fast: false
       matrix:
@@ -28,61 +42,35 @@ jobs:
     runs-on: ${{ matrix.runner }}
     env:
       GH_TOKEN: ${{ github.token }}
-      SHA: ${{ github.event.pull_request.head.sha }}
+      # For a tag push, workflow_run's head_branch is the tag name.
+      TAG: ${{ inputs.tag || github.event.workflow_run.head_branch }}
     steps:
+      # The tag's own tests and fixtures, so they match the released binary.
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TAG }}
 
-      - name: Wait for the Release workflow
+      - name: Install with the shell installer from the release
         run: |
-          for _ in $(seq 1 90); do
-            run=$(gh run list -R "$GITHUB_REPOSITORY" --workflow Release --commit "$SHA" \
-              --json databaseId,status,conclusion -q '.[0]')
-            status=$(echo "$run" | jq -r '.status // empty')
-            if [ "$status" = completed ]; then
-              conclusion=$(echo "$run" | jq -r .conclusion)
-              [ "$conclusion" = success ] || { echo "Release run ended: $conclusion"; exit 1; }
-              echo "RUN_ID=$(echo "$run" | jq -r .databaseId)" >> "$GITHUB_ENV"
-              exit 0
-            fi
-            sleep 20
-          done
-          echo "timed out waiting for the Release run"; exit 1
-
-      - name: Download artifacts
-        run: |
-          mkdir -p dl serve
-          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -D dl \
-            -n "artifacts-build-local-${{ matrix.target }}" -n artifacts-build-global
-          find dl -type f \( -name '*.tar.xz' -o -name '*.sha256' -o -name sha256.sum \
-            -o -name 'planrisk-installer.sh' \) -exec cp {} serve/ \;
-          ls -l serve
+          export CARGO_HOME="$RUNNER_TEMP/cargo-home"
+          # The installer writes a receipt under the config directory.
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/config"
+          curl --proto '=https' --tlsv1.2 -LsSf \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/planrisk-installer.sh" \
+            | INSTALLER_NO_MODIFY_PATH=1 sh
+          file "$CARGO_HOME/bin/planrisk"
+          echo "PLANRISK=$CARGO_HOME/bin/planrisk" >> "$GITHUB_ENV"
 
       - name: Check the archive against sha256.sum
-        working-directory: serve
         run: |
           archive="planrisk-${{ matrix.target }}.tar.xz"
+          mkdir dl && cd dl
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p "$archive" -p sha256.sum
           # sha256.sum lines look like "<hash> *<file>"; rewrite as "<hash>  <file>".
           awk -v a="$archive" '$2 == "*" a || $2 == a { print $1 "  " a }' sha256.sum > expected.sum
           test -s expected.sum
           if command -v sha256sum >/dev/null; then sha256sum -c expected.sum
           else shasum -a 256 -c expected.sum; fi
-
-      - name: Install with the shell installer from a local server
-        run: |
-          python3 -m http.server 8765 --bind 127.0.0.1 --directory serve >/dev/null 2>&1 &
-          # Wait until the server answers; it can take a few seconds to start.
-          for _ in $(seq 1 60); do
-            curl -sf -o /dev/null http://127.0.0.1:8765/sha256.sum && break
-            sleep 0.5
-          done
-          export CARGO_HOME="$RUNNER_TEMP/cargo-home"
-          # The installer writes a receipt under the config directory.
-          export XDG_CONFIG_HOME="$RUNNER_TEMP/config"
-          PLANRISK_DOWNLOAD_URL=http://127.0.0.1:8765 INSTALLER_NO_MODIFY_PATH=1 \
-            sh serve/planrisk-installer.sh
-          ls -l "$CARGO_HOME/bin/planrisk"
-          file "$CARGO_HOME/bin/planrisk"
-          echo "PLANRISK=$CARGO_HOME/bin/planrisk" >> "$GITHUB_ENV"
 
       - name: Smoke test the installed binary
         run: python3 tests/release/smoke_test.py "$PLANRISK"
