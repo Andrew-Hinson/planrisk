@@ -1,0 +1,91 @@
+# Checks a published release the way users get it: on each release
+# platform, installs with the shell installer from the GitHub Release,
+# checks the archive against sha256.sum, and runs
+# tests/release/smoke_test.py on the installed binary.
+#
+# Runs when the Release workflow finishes for a tag. (Not on the `release`
+# event: dist creates the release with GITHUB_TOKEN, and events caused by
+# that token don't start other workflows.) Can also be run by hand for any
+# tag from the Actions tab.
+name: Verify release
+
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to verify, e.g. v0.1.0
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify (${{ matrix.target }})
+    # For workflow_run: only successful Release runs started by a tag push.
+    # Release also runs on pull requests, where it publishes nothing.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-musl, runner: ubuntu-22.04 }
+          - { target: aarch64-unknown-linux-musl, runner: ubuntu-22.04-arm }
+          - { target: x86_64-apple-darwin, runner: macos-15-intel }
+          - { target: aarch64-apple-darwin, runner: macos-14 }
+    runs-on: ${{ matrix.runner }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # For a tag push, workflow_run's head_branch is the tag name.
+      TAG: ${{ inputs.tag || github.event.workflow_run.head_branch }}
+    steps:
+      # The tag's own tests and fixtures, so they match the released binary.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Install with the shell installer from the release
+        run: |
+          export CARGO_HOME="$RUNNER_TEMP/cargo-home"
+          # The installer writes a receipt under the config directory.
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/config"
+          curl --proto '=https' --tlsv1.2 -LsSf \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/planrisk-installer.sh" \
+            | INSTALLER_NO_MODIFY_PATH=1 sh
+          file "$CARGO_HOME/bin/planrisk"
+          echo "PLANRISK=$CARGO_HOME/bin/planrisk" >> "$GITHUB_ENV"
+
+      - name: Check the archive against sha256.sum
+        run: |
+          archive="planrisk-${{ matrix.target }}.tar.xz"
+          mkdir dl && cd dl
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p "$archive" -p sha256.sum
+          # sha256.sum lines look like "<hash> *<file>"; rewrite as "<hash>  <file>".
+          awk -v a="$archive" '$2 == "*" a || $2 == a { print $1 "  " a }' sha256.sum > expected.sum
+          test -s expected.sum
+          if command -v sha256sum >/dev/null; then sha256sum -c expected.sum
+          else shasum -a 256 -c expected.sum; fi
+
+      - name: Smoke test the installed binary
+        run: python3 tests/release/smoke_test.py "$PLANRISK"
+
+      - name: Run on other Linux distributions (static binary)
+        if: runner.os == 'Linux'
+        run: |
+          for image in alpine:3 debian:11 fedora:latest; do
+            echo "== $image"
+            set +e
+            docker run --rm -v "$PLANRISK:/planrisk:ro" -v "$PWD/tests/fixtures:/f:ro" "$image" \
+              /planrisk /f/mixed-changes.json --format terminal --fail-on critical > out.txt
+            code=$?
+            set -e
+            cat out.txt
+            [ "$code" -eq 2 ] || { echo "expected exit 2, got $code"; exit 1; }
+            grep -q stateful-replace out.txt
+          done
