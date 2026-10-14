@@ -1,0 +1,33 @@
+---
+source: tests/snapshots.rs
+expression: render_markdown(&report(&path))
+---
+<!-- planrisk -->
+### planrisk: 4 critical, 3 medium
+
+**Plan:** 1 to create, 0 to update, 4 to replace, 2 to delete, 1 to forget · Terraform 1.16.1
+
+| Severity | Resource | Finding | Rule |
+|---|---|---|---|
+| **critical** | `aws_db_instance.orders` | database must be replaced (destroy and then create replacement; forced by changes to storage\_encrypted) | `stateful-replace` |
+| **critical** | `aws_dynamodb_table.sessions` | database table will be destroyed (aws\_dynamodb\_table.sessions is not in configuration) | `stateful-delete` |
+| **critical** | `aws_ebs_volume.cache` | disk volume will be destroyed (aws\_ebs\_volume.cache is not in configuration) | `stateful-delete` |
+| **critical** | `aws_kms_key.main` | encryption key must be replaced (create replacement and then destroy; forced by changes to key\_usage, customer\_master\_key\_spec) | `stateful-replace` |
+| **medium** | whole plan | 6 to destroy, more than the threshold of 5 | `blast-radius` |
+| **medium** | `aws_instance.worker` | must be replaced (destroy and then create replacement; forced by changes to ami) | `replace` |
+| **medium** | `aws_sqs_queue.dlq` | must be replaced (destroy and then create replacement; changes in replace\_triggered\_by) | `replace` |
+
+<details><summary>Changes (8)</summary>
+
+| Action | Resource | Notes |
+|---|---|---|
+| replace | `aws_db_instance.orders` |  |
+| delete | `aws_dynamodb_table.sessions` |  |
+| create | `aws_dynamodb_table.user_sessions` |  |
+| delete | `aws_ebs_volume.cache` |  |
+| replace | `aws_instance.worker` |  |
+| replace | `aws_kms_key.main` | create replacement and then destroy |
+| forget | `aws_s3_bucket.uploads` |  |
+| replace | `aws_sqs_queue.dlq` |  |
+
+</details>

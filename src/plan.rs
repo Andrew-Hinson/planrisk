@@ -45,6 +45,11 @@ pub struct Plan {
     /// Changes Terraform postponed to a later plan (an experimental feature).
     #[serde(default)]
     pub deferred_changes: Vec<DeferredChange>,
+
+    /// The configuration the plan was made from. Kept as raw JSON: only
+    /// [`Plan::config_sets`] reads it.
+    #[serde(default)]
+    configuration: Value,
 }
 
 /// One planned change to one resource instance.
@@ -181,6 +186,73 @@ impl Plan {
     pub fn from_json(json: &str) -> serde_json::Result<Plan> {
         serde_json::from_str(json)
     }
+
+    /// Whether the configuration sets `attribute` on this resource, or
+    /// `None` if the resource's configuration can't be found.
+    ///
+    /// Tells "the config sets this to something not known until apply" apart
+    /// from "the config leaves it out and the provider fills it in", which
+    /// look the same in `after_unknown`.
+    pub fn config_sets(&self, rc: &ResourceChange, attribute: &str) -> Option<bool> {
+        // Walk down `module_calls` along the module path. Configuration is
+        // per module, not per instance, so `for_each` and `count` keys are
+        // dropped: `module.a["x"].module.b[0]` looks up `a`, then `b`.
+        let mut module = self.configuration.get("root_module")?;
+        if let Some(path) = &rc.module_address {
+            for name in module_names(path) {
+                module = module.get("module_calls")?.get(name)?.get("module")?;
+            }
+        }
+        // Resource addresses here are relative to the module, e.g.
+        // `aws_iam_role_policy.app`, or `data.aws_iam_policy_document.admin`.
+        let prefix = if rc.mode == "data" { "data." } else { "" };
+        let address = format!("{prefix}{}.{}", rc.resource_type, rc.name);
+        let resource = module
+            .get("resources")?
+            .as_array()?
+            .iter()
+            .find(|r| r.get("address").and_then(Value::as_str) == Some(&address))?;
+        Some(
+            resource
+                .get("expressions")
+                .is_some_and(|e| e.get(attribute).is_some()),
+        )
+    }
+}
+
+/// The module names in a module address, without instance keys:
+/// `module.a["x.y"].module.b[0]` gives `a`, `b`. Keys can contain dots and
+/// brackets inside their quotes, so this steps through the address rather
+/// than splitting it.
+fn module_names(address: &str) -> Vec<&str> {
+    let mut names = Vec::new();
+    let mut rest = address;
+    while let Some(after) = rest.strip_prefix("module.") {
+        let end = after.find(['.', '[']).unwrap_or(after.len());
+        names.push(&after[..end]);
+        rest = &after[end..];
+        if rest.starts_with('[') {
+            rest = skip_key(rest);
+        }
+        rest = rest.strip_prefix('.').unwrap_or(rest);
+    }
+    names
+}
+
+/// Skips an instance key like `[0]` or `["a\"]b"]` at the start of `s`.
+fn skip_key(s: &str) -> &str {
+    let mut in_string = false;
+    let mut escaped = false;
+    for (i, c) in s.char_indices() {
+        match c {
+            _ if escaped => escaped = false,
+            '\\' if in_string => escaped = true,
+            '"' => in_string = !in_string,
+            ']' if !in_string => return &s[i + 1..],
+            _ => {}
+        }
+    }
+    ""
 }
 
 #[cfg(test)]
@@ -191,6 +263,47 @@ mod tests {
     // The path is relative to this source file.
     const EMPTY: &str = include_str!("../tests/fixtures/empty.json");
     const CREATE_ONLY: &str = include_str!("../tests/fixtures/create-only.json");
+
+    #[test]
+    fn module_names_skip_instance_keys() {
+        assert_eq!(module_names("module.a"), ["a"]);
+        assert_eq!(module_names("module.a[0].module.b"), ["a", "b"]);
+        assert_eq!(
+            module_names(r#"module.a["x.y].module.z"].module.b["q\"]"]"#),
+            ["a", "b"]
+        );
+    }
+
+    #[test]
+    fn config_sets_finds_attributes_in_nested_modules() {
+        let plan = Plan::from_json(
+            r#"{
+                "format_version": "1.2",
+                "resource_changes": [
+                    {"address": "aws_kms_key.k", "type": "aws_kms_key", "name": "k",
+                     "mode": "managed", "change": {"actions": ["create"]}},
+                    {"address": "module.m[\"a.b\"].module.n.aws_kms_key.k",
+                     "module_address": "module.m[\"a.b\"].module.n",
+                     "type": "aws_kms_key", "name": "k", "mode": "managed",
+                     "change": {"actions": ["create"]}},
+                    {"address": "aws_kms_key.missing", "type": "aws_kms_key", "name": "missing",
+                     "mode": "managed", "change": {"actions": ["create"]}}
+                ],
+                "configuration": {"root_module": {
+                    "resources": [{"address": "aws_kms_key.k", "expressions": {"description": {}}}],
+                    "module_calls": {"m": {"module": {"module_calls": {"n": {"module": {
+                        "resources": [{"address": "aws_kms_key.k", "expressions": {"policy": {}}}]
+                    }}}}}}
+                }}
+            }"#,
+        )
+        .unwrap();
+        let rc = &plan.resource_changes;
+        assert_eq!(plan.config_sets(&rc[0], "policy"), Some(false));
+        assert_eq!(plan.config_sets(&rc[0], "description"), Some(true));
+        assert_eq!(plan.config_sets(&rc[1], "policy"), Some(true));
+        assert_eq!(plan.config_sets(&rc[2], "policy"), None);
+    }
 
     #[test]
     fn empty_plan_has_no_changes() {

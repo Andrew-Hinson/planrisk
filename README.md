@@ -42,7 +42,7 @@ terraform show -json plan.out | planrisk -
 
 Exit codes: 0 OK, 1 error, 2 a finding at or above `--fail-on`.
 
-Sensitive values are always redacted.
+Needs Terraform 1.1 or later. Sensitive values are always redacted.
 
 ## Config
 

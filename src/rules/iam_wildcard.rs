@@ -55,19 +55,37 @@ impl Rule for IamWildcard {
     fn check(&self, plan: &Plan) -> Vec<Finding> {
         plan.resource_changes
             .iter()
-            .filter_map(|rc| self.check_one(rc))
+            .filter_map(|rc| self.check_one(plan, rc))
             .collect()
     }
 }
 
 impl IamWildcard {
-    fn check_one(&self, rc: &ResourceChange) -> Option<Finding> {
+    fn check_one(&self, plan: &Plan, rc: &ResourceChange) -> Option<Finding> {
         let attribute = POLICY_ATTRIBUTES
             .iter()
             .find(|(ty, _)| *ty == rc.resource_type)
             .map(|(_, attribute)| *attribute)?;
 
-        // Not set, deleted, or only known after apply: nothing to check.
+        // Only known after apply, usually because the policy refers to a
+        // resource this plan creates. Say it wasn't checked rather than
+        // staying silent: it may well grant a wildcard. But a policy the
+        // config leaves out (a KMS key's, say) is unknown because AWS fills
+        // in a default, which is nothing to report. If the config can't be
+        // found, report it anyway.
+        if rc.change.after_unknown.get(attribute) == Some(&Value::Bool(true))
+            && plan.config_sets(rc, attribute) != Some(false)
+        {
+            return Some(Finding {
+                rule_id: self.id(),
+                severity: Severity::Low,
+                address: Some(rc.address.clone()),
+                message: format!("{attribute} is only known after apply, so it wasn't checked"),
+                reason: None,
+            });
+        }
+
+        // Not set, or deleted: nothing to check.
         let after = rc.change.after_unredacted().get(attribute)?.as_str()?;
         let after_grants = match grants(after) {
             Ok(grants) => grants,
@@ -408,6 +426,32 @@ mod tests {
             "policy could not be parsed, so it wasn't checked"
         );
         assert!(found[0].reason.as_deref().unwrap().contains("line 1"));
+    }
+
+    #[test]
+    fn policy_known_only_after_apply_is_reported_as_unchecked() {
+        // As Terraform plans a policy that refers to a bucket it creates.
+        let plan: Plan = serde_json::from_value(json!({
+            "format_version": "1.2",
+            "resource_changes": [{
+                "address": "aws_iam_role_policy.app",
+                "type": "aws_iam_role_policy",
+                "change": {
+                    "actions": ["update"],
+                    "before": {"policy": statement(json!({"Effect": "Allow", "Action": "s3:GetObject", "Resource": "*"})).to_string()},
+                    "after": {"role": "app"},
+                    "after_unknown": {"policy": true}
+                }
+            }]
+        }))
+        .unwrap();
+        let found = IamWildcard.check(&plan);
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].severity, Severity::Low);
+        assert_eq!(
+            found[0].message,
+            "policy is only known after apply, so it wasn't checked"
+        );
     }
 
     #[test]
