@@ -19,3 +19,5 @@ install-path = "CARGO_HOME"
 hosting = "github"
 # Whether to install an updater program
 install-updater = false
+# TEMPORARY: build every artifact on PRs, to verify the release before tagging.
+pr-run-mode = "upload"
