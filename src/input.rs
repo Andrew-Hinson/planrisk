@@ -44,6 +44,7 @@ pub fn parse_plan(text: &str, name: &str) -> Result<Plan> {
 
     check_is_plan(&value, name)?;
     check_format_version(&value, name)?;
+    check_not_errored(&value, name)?;
 
     serde_json::from_value(value)
         .with_context(|| format!("`{name}` looks like a plan but could not be read"))
@@ -107,10 +108,34 @@ fn check_format_version(value: &Value, name: &str) -> Result<()> {
         bail!("`{name}` has a malformed `format_version` \"{version}\" (expected e.g. \"1.2\")");
     };
 
+    // Terraform 1.0 and older write `0.x`; 1.1 made the format stable as `1.0`.
+    if major == 0 {
+        bail!(
+            "`{name}` uses plan format version {version}, from Terraform 1.0 or older. \
+             planrisk needs a plan made by Terraform 1.1 or later."
+        );
+    }
     if major != SUPPORTED_MAJOR {
         bail!(
             "`{name}` uses plan format version {version}, but planrisk only supports \
              {SUPPORTED_MAJOR}.x. A newer planrisk release may support it."
+        );
+    }
+    Ok(())
+}
+
+/// Rejects a plan that Terraform couldn't finish.
+///
+/// When planning fails, Terraform can still save the partial plan, with
+/// `"errored": true` and `"complete": false`. Its changes stop wherever the
+/// error happened, so a report on it could miss anything, or say "No changes"
+/// when Terraform didn't get far enough to find them.
+fn check_not_errored(value: &Value, name: &str) -> Result<()> {
+    if value.get("errored") == Some(&Value::Bool(true)) {
+        bail!(
+            "`{name}` is from a Terraform plan that failed with errors, so its list of \
+             changes is incomplete. Fix the errors `terraform plan` reports, then run \
+             planrisk on the new plan."
         );
     }
     Ok(())
@@ -128,6 +153,23 @@ mod tests {
     /// The full error message, including every cause, as the CLI prints it.
     fn error_text(json: &str) -> String {
         format!("{:#}", parse_plan(json, "plan.json").unwrap_err())
+    }
+
+    #[test]
+    fn errored_plan_is_rejected() {
+        // As Terraform saves a plan that failed: no changes listed at all.
+        let msg = error_text(
+            r#"{"format_version": "1.2", "applyable": false, "complete": false,
+                "errored": true, "planned_values": {}}"#,
+        );
+        assert!(msg.contains("failed with errors"), "{msg}");
+        assert!(
+            parse_plan(
+                r#"{"format_version": "1.2", "errored": false, "planned_values": {}}"#,
+                "p"
+            )
+            .is_ok()
+        );
     }
 
     #[test]
@@ -199,7 +241,7 @@ mod tests {
 
     #[test]
     fn other_major_versions_are_rejected_by_name() {
-        for version in ["0.2", "2.0", "10.1"] {
+        for version in ["2.0", "10.1"] {
             let msg = error_text(&plan_with_version(&format!("\"{version}\"")));
             assert!(
                 msg.contains(&format!("plan format version {version}")),
@@ -207,6 +249,14 @@ mod tests {
             );
             assert!(msg.contains("only supports 1.x"), "{msg}");
         }
+    }
+
+    #[test]
+    fn plans_from_terraform_1_0_and_older_say_which_terraform_is_needed() {
+        // Terraform 1.0.11 writes "0.2" (checked with a real plan).
+        let msg = error_text(&plan_with_version("\"0.2\""));
+        assert!(msg.contains("from Terraform 1.0 or older"), "{msg}");
+        assert!(msg.contains("Terraform 1.1 or later"), "{msg}");
     }
 
     #[test]

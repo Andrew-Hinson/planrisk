@@ -1,0 +1,73 @@
+---
+source: tests/snapshots.rs
+expression: json
+---
+{
+  "format_version": "1.0",
+  "planrisk_version": "[version]",
+  "terraform_version": "1.16.1",
+  "plan_format_version": "1.2",
+  "max_severity": "critical",
+  "counts": {
+    "create": 1,
+    "update": 0,
+    "replace": 4,
+    "delete": 2,
+    "forget": 1,
+    "read": 0,
+    "import": 0,
+    "move": 0,
+    "unknown": 0
+  },
+  "findings": [
+    {
+      "rule_id": "stateful-replace",
+      "severity": "critical",
+      "address": "aws_db_instance.orders",
+      "message": "database must be replaced",
+      "reason": "destroy and then create replacement; forced by changes to storage_encrypted"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_dynamodb_table.sessions",
+      "message": "database table will be destroyed",
+      "reason": "aws_dynamodb_table.sessions is not in configuration"
+    },
+    {
+      "rule_id": "stateful-delete",
+      "severity": "critical",
+      "address": "aws_ebs_volume.cache",
+      "message": "disk volume will be destroyed",
+      "reason": "aws_ebs_volume.cache is not in configuration"
+    },
+    {
+      "rule_id": "stateful-replace",
+      "severity": "critical",
+      "address": "aws_kms_key.main",
+      "message": "encryption key must be replaced",
+      "reason": "create replacement and then destroy; forced by changes to key_usage, customer_master_key_spec"
+    },
+    {
+      "rule_id": "blast-radius",
+      "severity": "medium",
+      "address": null,
+      "message": "6 to destroy, more than the threshold of 5",
+      "reason": null
+    },
+    {
+      "rule_id": "replace",
+      "severity": "medium",
+      "address": "aws_instance.worker",
+      "message": "must be replaced",
+      "reason": "destroy and then create replacement; forced by changes to ami"
+    },
+    {
+      "rule_id": "replace",
+      "severity": "medium",
+      "address": "aws_sqs_queue.dlq",
+      "message": "must be replaced",
+      "reason": "destroy and then create replacement; changes in replace_triggered_by"
+    }
+  ]
+}

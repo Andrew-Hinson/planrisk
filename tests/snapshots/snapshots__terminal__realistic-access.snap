@@ -1,0 +1,28 @@
+---
+source: tests/snapshots.rs
+expression: render_text(&report(&path))
+---
+Terraform 1.16.1, plan format 1.2
+6 to create, 4 to update, 0 to replace, 0 to delete, 2 to move
+
+Findings:
+  high      aws_iam_policy.admin: policy grants full "*:*" administrative privileges ("Action": "*" on "Resource": "*") [iam-wildcard]
+  high      aws_s3_bucket_policy.data: policy grants access to everyone with "Principal": "*" [iam-wildcard]
+  high      aws_s3_bucket_public_access_block.data: turns off S3 Block Public Access: block_public_policy, restrict_public_buckets [s3-public-access]
+  high      aws_vpc_security_group_ingress_rule.ssh: allows ingress from ::/0 to port 22 (tcp) [sg-open-ingress]
+  medium    aws_lb.public: load balancer may be internet-facing (internal is only known after apply; it defaults to false, which is internet-facing) [public-endpoint]
+  low       aws_iam_role_policy.app: policy is only known after apply, so it wasn't checked [iam-wildcard]
+
+Changes:
+  update   aws_db_instance.main
+  create   aws_iam_policy.admin
+  update   aws_iam_role_policy.app
+  move     aws_instance.web["a"] (moved from aws_instance.web[0])
+  move     aws_instance.web["b"] (moved from aws_instance.web[1])
+  create   aws_lb.public
+  create   aws_s3_bucket.new
+  create   aws_s3_bucket_policy.data
+  update   aws_s3_bucket_public_access_block.data
+  update   aws_security_group.web
+  create   aws_vpc_security_group_ingress_rule.ssh
+  create   module.queues["us \"east\""].aws_sqs_queue.this

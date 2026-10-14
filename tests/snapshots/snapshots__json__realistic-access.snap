@@ -1,0 +1,66 @@
+---
+source: tests/snapshots.rs
+expression: json
+---
+{
+  "format_version": "1.0",
+  "planrisk_version": "[version]",
+  "terraform_version": "1.16.1",
+  "plan_format_version": "1.2",
+  "max_severity": "high",
+  "counts": {
+    "create": 6,
+    "update": 4,
+    "replace": 0,
+    "delete": 0,
+    "forget": 0,
+    "read": 0,
+    "import": 0,
+    "move": 2,
+    "unknown": 0
+  },
+  "findings": [
+    {
+      "rule_id": "iam-wildcard",
+      "severity": "high",
+      "address": "aws_iam_policy.admin",
+      "message": "policy grants full \"*:*\" administrative privileges",
+      "reason": "\"Action\": \"*\" on \"Resource\": \"*\""
+    },
+    {
+      "rule_id": "iam-wildcard",
+      "severity": "high",
+      "address": "aws_s3_bucket_policy.data",
+      "message": "policy grants access to everyone with \"Principal\": \"*\"",
+      "reason": null
+    },
+    {
+      "rule_id": "s3-public-access",
+      "severity": "high",
+      "address": "aws_s3_bucket_public_access_block.data",
+      "message": "turns off S3 Block Public Access: block_public_policy, restrict_public_buckets",
+      "reason": null
+    },
+    {
+      "rule_id": "sg-open-ingress",
+      "severity": "high",
+      "address": "aws_vpc_security_group_ingress_rule.ssh",
+      "message": "allows ingress from ::/0 to port 22 (tcp)",
+      "reason": null
+    },
+    {
+      "rule_id": "public-endpoint",
+      "severity": "medium",
+      "address": "aws_lb.public",
+      "message": "load balancer may be internet-facing",
+      "reason": "internal is only known after apply; it defaults to false, which is internet-facing"
+    },
+    {
+      "rule_id": "iam-wildcard",
+      "severity": "low",
+      "address": "aws_iam_role_policy.app",
+      "message": "policy is only known after apply, so it wasn't checked",
+      "reason": null
+    }
+  ]
+}

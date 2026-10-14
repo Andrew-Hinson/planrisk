@@ -431,7 +431,7 @@ Each milestone ends with something runnable and tested.
 | Question | Decision | Basis |
 |----------|----------|-------|
 | `--fail-on` default | None: report only, exit 0 | Matches Trivy: "By default, Trivy exits with code 0 even when security issues are detected." Lets teams adopt the tool before letting it block merges. |
-| Terraform versions | Any Terraform 1.x. Accept `format_version` 1.x, reject other majors. | Terraform's [v1.x compatibility promises](https://developer.hashicorp.com/terraform/language/v1-compatibility-promises) cover `show -json`: "we will not remove or make breaking changes" to JSON formats. |
+| Terraform versions | Terraform 1.1 or later. Accept `format_version` 1.x, reject other majors. Terraform 1.0 and older write `0.x` (1.0.11 writes `0.2`), and get an error naming the Terraform version needed. | Terraform's [v1.x compatibility promises](https://developer.hashicorp.com/terraform/language/v1-compatibility-promises) cover `show -json`: "we will not remove or make breaking changes" to JSON formats. |
 | Unknown plan fields | Ignore | The JSON format docs require it for forward compatibility (§6). |
 | Report artifact | Action outputs `report-json`; users add `actions/upload-artifact` | Keeps the Action to one job (§12). |
 | Comment size cap | 60,000 bytes | Margin under GitHub's observed 65,536 limit (§11). |
